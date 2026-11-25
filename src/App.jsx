@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 
 // --- SUPABASE CONFIGURATION ---
-const SUPABASE_URL = const SUPABASE_KEY = 'YAHA_APNI_eyJ_WALI_ANON_KEY_PASTE_KAREIN';
+const SUPABASE_URL = const SUPABASE_KEY = 'sb_publishable_RNnAPbFgYlNJ8rv_V4KpCg_sFXf7eHq';
 const SUPABASE_KEY = 'sb_publishable_RNnAPbFgYlNJ8rv_V4KpCg_sFXf7eHq';
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
