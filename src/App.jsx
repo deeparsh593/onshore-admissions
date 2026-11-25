@@ -1,10 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createClient } from '@supabase/supabase-js';
 import {
   GraduationCap, Globe, FileText, CheckCircle2, Clock, Download,
   Upload, Mail, Briefcase, Building2, UserCheck, ShieldCheck,
   Search, ChevronRight, ArrowRight, Plus, LogOut, User, MapPin,
-  DollarSign, Calendar, Send, Menu, X, Sparkles
+  DollarSign, Calendar, Send, Menu, X, Sparkles, Lock, Eye, EyeOff
 } from 'lucide-react';
+
+// --- SUPABASE CONFIGURATION ---
+const SUPABASE_URL = 'https://girvhzxxzmcggrbwqiaw.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_RNnAPbFgYlNJ8rv_V4KpCg_sFXf7eHq';
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// --- ADMIN PASSWORD (Aap ise kabhi bhi badal sakte hain) ---
+const ADMIN_PASSCODE = 'Admin@2026';
 
 const INITIAL_UNIVERSITIES = [
   {
@@ -19,175 +28,184 @@ const INITIAL_UNIVERSITIES = [
   },
   {
     id: 'u2',
-    name: 'Seneca Polytechnic',
-    country: 'Canada',
-    city: 'Toronto, ON',
-    intake: 'Jan / May 2027',
-    tuition: 'CAD $16,200 / yr',
-    scholarship: 'Fast-Track LOA (5 Days)',
-    courses: ['International Business Management', 'Cloud Architecture & Administration', 'Cybersecurity & Threat Management']
+    name: 'Northeastern University - College of Professional Studies',
+    country: 'USA',
+    city: 'Boston, MA / Seattle, WA',
+    intake: 'Spring / Fall 2027',
+    tuition: 'USD $24,000 / yr',
+    scholarship: '20% Transfer Credit Waiver',
+    courses: ['MS in Project Management (STEM)', 'MS in Applied Machine Intelligence', 'MPS in Informatics']
   },
   {
     id: 'u3',
-    name: 'Northeastern University (College of Professional Studies)',
-    country: 'USA',
-    city: 'Boston, MA / Seattle, WA',
-    intake: 'Jan / Apr / Sep 2027',
-    tuition: 'USD $24,800 / yr',
-    scholarship: 'USD $4,000 Transfer Merit Award',
-    courses: ['MS in Project Management (STEM)', 'MS in Regulatory Affairs', 'MPS in Informatics (STEM)']
+    name: 'University of Technology Sydney (UTS)',
+    country: 'Australia',
+    city: 'Sydney, NSW',
+    intake: 'Feb / July 2027',
+    tuition: 'AUD $34,000 / yr',
+    scholarship: '25% Onshore Academic Excellence Scholarship',
+    courses: ['Master of Information Technology', 'Master of Business Analytics', 'Graduate Diploma in Engineering Management']
   },
   {
     id: 'u4',
-    name: 'California State University, East Bay',
-    country: 'USA',
-    city: 'Hayward, CA',
-    intake: 'Spring / Fall 2027',
-    tuition: 'USD $19,400 / yr',
-    scholarship: 'SEVIS Transfer Fee Waiver',
-    courses: ['MS in Business Analytics (STEM)', 'MS in Computer Science', 'MBA - Global Innovators']
+    name: 'Seneca Polytechnic',
+    country: 'Canada',
+    city: 'North York, ON',
+    intake: 'Jan / May / Sep 2027',
+    tuition: 'CAD $16,200 / yr',
+    scholarship: 'Fast-Track DLI Transfer Waiver',
+    courses: ['Cybersecurity & Threat Management', 'Cloud Architecture & Administration', 'Financial Technology (FinTech)']
   },
   {
     id: 'u5',
-    name: 'Macquarie University',
-    country: 'Australia',
-    city: 'Sydney, NSW',
-    intake: 'Feb / Jul 2027',
-    tuition: 'AUD $34,000 / yr',
-    scholarship: 'AUD $5,000 Onshore Partner Bursary',
-    courses: ['Master of Information Technology', 'Master of Business Analytics', 'Master of Management']
+    name: 'Arizona State University (ASU)',
+    country: 'USA',
+    city: 'Tempe, AZ',
+    intake: 'Spring / Fall 2027',
+    tuition: 'USD $27,500 / yr',
+    scholarship: 'Up to USD $5,000 Transfer Award',
+    courses: ['MS in Computer Science', 'MS in Business Analytics', 'Master of Engineering Management']
   },
   {
     id: 'u6',
-    name: 'Deakin University',
+    name: 'RMIT University',
     country: 'Australia',
     city: 'Melbourne, VIC',
-    intake: 'Mar / Jul / Nov 2027',
-    tuition: 'AUD $31,600 / yr',
-    scholarship: '20% STEM Onshore Scholarship',
-    courses: ['Master of Data Science', 'Master of Professional Accounting', 'Master of Construction Management']
+    intake: 'Feb / July 2027',
+    tuition: 'AUD $32,800 / yr',
+    scholarship: '20% Onshore International Bursary',
+    courses: ['Master of Data Science', 'Master of Supply Chain & Logistics', 'Master of International Business']
   }
 ];
 
 const INITIAL_BLOGS = [
   {
     id: 'b1',
-    title: 'How to Change Your DLI College in Canada Without Affecting Your PGWP Eligibility',
-    category: 'Canada Study Extension',
+    title: 'Canada DLI Change & Study Permit Extension Rules (2026–2027 Guide)',
+    category: 'Canada Onshore',
     date: 'Nov 18, 2026',
     readTime: '5 min read',
-    summary: 'A step-by-step breakdown of IRCC rules for onshore DLI transfers, study permit extension timelines, and choosing PGWP-eligible programs.',
-    content: 'Transferring between Designated Learning Institutions (DLIs) inside Canada requires careful compliance with IRCC rules. Before switching colleges or universities, ensure your new program is PGWP-eligible, notify IRCC via your GCKey portal, and apply for your study permit extension at least 90 days before expiration.'
+    excerpt: 'Everything international students inside Canada need to know before switching colleges, applying for a new PAL, or extending their study permit.',
+    content: 'Changing your Designated Learning Institution (DLI) in Canada now requires careful compliance with IRCC guidelines. Before transferring, ensure your new program aligns with your career progression and check whether a Provincial Attestation Letter (PAL) is required for your level of study. Always maintain full-time enrollment during the transition.'
   },
   {
     id: 'b2',
-    title: 'F-1 SEVIS Transfer in the USA: Maintaining Status Between Universities',
-    category: 'USA Transfers',
+    title: 'How to Transfer Your SEVIS I-20 in the USA Without Losing F-1 Status',
+    category: 'USA Onshore',
     date: 'Nov 10, 2026',
-    readTime: '4 min read',
-    summary: 'Everything international students in the US need to know about SEVIS release dates, grace periods, and STEM master’s transfers.',
-    content: 'When transferring your F-1 SEVIS record from one SEVP-certified school to another in the United States, timing your SEVIS release date is critical. You must begin classes at your transfer-in university within 5 months of your last day of attendance or OPT end date.'
+    readTime: '6 min read',
+    excerpt: 'Step-by-step timeline for requesting a SEVIS release date from your current DSO and securing an I-20 from a top US university.',
+    content: 'Transferring between SEVP-certified schools in the United States requires coordinating your SEVIS record release date within 60 days of program completion (or while in valid status). Secure your new admission letter first, submit the Transfer-In form, and ensure classes start within 5 months of your release date.'
   },
   {
     id: 'b3',
-    title: 'Onshore CoE & Student Visa (Subclass 500) Extension Guide for Australia',
-    category: 'Australia Visa',
+    title: 'Switching Courses or Providers in Australia: Subclass 500 Visa Rules',
+    category: 'Australia Onshore',
     date: 'Nov 02, 2026',
-    readTime: '6 min read',
-    summary: 'Planning to upgrade from a Diploma to a Bachelor or Master degree in Sydney or Melbourne? Here is how to secure your new CoE and Bridging Visa A.',
-    content: 'In Australia, onshore students extending their stay or changing courses must obtain a new Confirmation of Enrolment (CoE) and lodge a fresh Subclass 500 visa application before their current visa expires. Once lodged onshore, you automatically receive a Bridging Visa A (BVA) allowing you to remain lawfully in Australia.'
+    readTime: '4 min read',
+    excerpt: 'Understanding Genuine Student (GS) requirements, AQF level rules, and release letters when changing institutions in Australia.',
+    content: 'If you have not completed 6 months of your principal course in Australia, you will need a formal Letter of Release from your current provider. Additionally, under Subclass 500 rules, you must maintain the same or higher AQF qualification level unless you apply for a new Student Visa.'
   }
 ];
 
-const INITIAL_JOBS = [
-  {
-    id: 'j1',
-    title: 'Senior Onshore Admissions Counselor (Canada & USA)',
-    location: 'Remote / Hybrid',
-    type: 'Full-Time',
-    department: 'Student Admissions',
-    description: 'Guide onshore international students through college/university transfers, document verification, and offer letter processing.'
-  },
-  {
-    id: 'j2',
-    title: 'University Partnerships Manager (B2B)',
-    location: 'Remote (North America / APAC)',
-    type: 'Full-Time',
-    department: 'Institutional Relations',
-    description: 'Onboard universities and colleges across the USA, Canada, and Australia and manage direct institutional commission agreements.'
-  },
-  {
-    id: 'j3',
-    title: 'Student Visa & Compliance Coordinator',
-    location: 'Remote',
-    type: 'Full-Time',
-    department: 'Post-Offer Support',
-    description: 'Assist students after offer letter issuance with CoE, I-20, LOA, and study permit extension documentation checklists.'
-  }
-];
-
-const INITIAL_APPLICATIONS = [
-  {
-    id: 'APP-2026-841',
-    studentName: 'Aarav Sharma',
-    studentEmail: 'aarav.student@example.com',
-    currentCountry: 'Canada',
-    currentInstitution: 'Humber College',
-    targetUniversity: 'Seneca Polytechnic',
-    course: 'Cloud Architecture & Administration',
-    intake: 'May 2027',
-    status: 'Offer Letter Issued',
-    submittedDate: '2026-11-15',
-    docs: ['Passport_Bio.pdf', 'Current_Study_Permit.pdf', 'College_Transcripts.pdf'],
-    offerReady: true
-  },
-  {
-    id: 'APP-2026-842',
-    studentName: 'Simran Kaur',
-    studentEmail: 'simran.k@example.com',
-    currentCountry: 'Australia',
-    currentInstitution: 'Holmes Institute',
-    targetUniversity: 'Macquarie University',
-    course: 'Master of Business Analytics',
-    intake: 'Feb 2027',
-    status: 'Under University Review',
-    submittedDate: '2026-11-21',
-    docs: ['Passport.pdf', 'Subclass500_VisaGrant.pdf', 'Bachelor_Degree.pdf'],
-    offerReady: false
-  }
-];
-
-const STATUS_OPTIONS = [
+const STATUS_STEPS = [
   'Documents Received & Verified',
-  'Submitted to University',
-  'Under University Review',
+  'Submitted to University Admissions',
+  'Under Institutional Review',
   'Conditional Offer Issued',
-  'Offer Letter Issued'
+  'Unconditional Offer Letter Ready'
 ];
-
-const CONTACT_EMAIL = 'info@theonshoreadmissions.com';
 
 export default function App() {
   const [activePage, setActivePage] = useState('home');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Auth States
   const [currentUser, setCurrentUser] = useState(null);
-  const [isAdminMode, setIsAdminMode] = useState(false);
-  const [authMode, setAuthMode] = useState('login');
+  const [authMode, setAuthMode] = useState('login'); // 'login' | 'signup'
+  const [authForm, setAuthForm] = useState({ name: '', email: '', password: '', country: 'Canada' });
+  const [authLoading, setAuthLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-  const [universities] = useState(INITIAL_UNIVERSITIES);
+  // Admin Auth States
+  const [isAdminUnlocked, setIsAdminUnlocked] = useState(false);
+  const [adminPasswordInput, setAdminPasswordInput] = useState('');
+
+  // Data States
+  const [applications, setApplications] = useState([]);
+  const [loadingApps, setLoadingApps] = useState(false);
   const [blogs, setBlogs] = useState(INITIAL_BLOGS);
-  const [applications, setApplications] = useState(INITIAL_APPLICATIONS);
-  const [selectedUniForApply, setSelectedUniForApply] = useState(null);
+  const [selectedBlog, setSelectedBlog] = useState(null);
 
+  // Filters
   const [countryFilter, setCountryFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const [toast, setToast] = useState(null);
+  // Application Form State
+  const [appForm, setAppForm] = useState({
+    currentCountry: 'Canada',
+    currentInstitution: '',
+    targetUniversity: INITIAL_UNIVERSITIES[0].name,
+    course: INITIAL_UNIVERSITIES[0].courses[0],
+    intake: 'Jan / Spring 2027',
+    passportFile: '',
+    transcriptFile: '',
+    visaFile: ''
+  });
+  const [submittingApp, setSubmittingApp] = useState(false);
 
+  // Blog Admin Form
+  const [newBlog, setNewBlog] = useState({ title: '', category: 'Canada Onshore', excerpt: '', content: '' });
+
+  // Toast Notification
+  const [toast, setToast] = useState(null);
   const showToast = (title, message) => {
     setToast({ title, message });
-    setTimeout(() => setToast(null), 5500);
+    setTimeout(() => setToast(null), 4000);
+  };
+
+  // Check active Supabase session on load
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setCurrentUser({
+          id: session.user.id,
+          email: session.user.email,
+          name: session.user.user_metadata?.full_name || session.user.email.split('@')[0],
+          country: session.user.user_metadata?.country || 'Canada'
+        });
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setCurrentUser({
+          id: session.user.id,
+          email: session.user.email,
+          name: session.user.user_metadata?.full_name || session.user.email.split('@')[0],
+          country: session.user.user_metadata?.country || 'Canada'
+        });
+      } else {
+        setCurrentUser(null);
+      }
+    });
+
+    fetchApplications();
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Fetch all applications from Supabase
+  const fetchApplications = async () => {
+    setLoadingApps(true);
+    const { data, error } = await supabase
+      .from('applications')
+      .select('*')
+      .order('submitted_date', { ascending: false });
+
+    if (!error && data) {
+      setApplications(data);
+    }
+    setLoadingApps(false);
   };
 
   const navItems = [
@@ -196,105 +214,152 @@ export default function App() {
     { id: 'providers', label: 'Education Providers' },
     { id: 'blogs', label: 'Blogs & Guides' },
     { id: 'careers', label: 'Careers' },
-    { id: 'contact', label: 'Contact' },
+    { id: 'contact', label: 'Contact' }
   ];
 
   const navigate = (page) => {
     setActivePage(page);
     setMobileMenuOpen(false);
+    setSelectedBlog(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleAuthSubmit = (e) => {
+  // --- REAL SUPABASE AUTH HANDLER ---
+  const handleAuthSubmit = async (e) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
-    const email = formData.get('email');
-    const name = formData.get('name') || email.split('@')[0];
-    const country = formData.get('country') || 'Canada';
-    setCurrentUser({ name, email, country });
-    setIsAdminMode(false);
-    showToast('Welcome to Student Portal', `Logged in as ${name}`);
-    navigate('portal');
+    setAuthLoading(true);
+
+    try {
+      if (authMode === 'signup') {
+        const { data, error } = await supabase.auth.signUp({
+          email: authForm.email.trim(),
+          password: authForm.password,
+          options: {
+            data: {
+              full_name: authForm.name.trim(),
+              country: authForm.country
+            }
+          }
+        });
+
+        if (error) throw error;
+
+        if (data?.user) {
+          showToast('Account Created!', `Welcome to Onshore Admissions, ${authForm.name}!`);
+          setAuthForm({ name: '', email: '', password: '', country: 'Canada' });
+        }
+      } else {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: authForm.email.trim(),
+          password: authForm.password
+        });
+
+        if (error) throw error;
+
+        if (data?.user) {
+          showToast('Login Successful', `Welcome back, ${data.user.user_metadata?.full_name || data.user.email}!`);
+          setAuthForm({ name: '', email: '', password: '', country: 'Canada' });
+        }
+      }
+    } catch (err) {
+      showToast('Authentication Error', err.message || 'Please check your email and password.');
+    } finally {
+      setAuthLoading(false);
+    }
   };
 
-  const handleQuickDemoLogin = () => {
-    setCurrentUser({
-      name: 'Aarav Sharma',
-      email: 'aarav.student@example.com',
-      country: 'Canada'
-    });
-    setIsAdminMode(false);
-    showToast('Demo Student Logged In', 'You can now apply, track status, and download your Offer Letter.');
-    navigate('portal');
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setCurrentUser(null);
+    showToast('Logged Out', 'You have been securely signed out.');
   };
 
-  const handleApplicationSubmit = (e) => {
+  // --- SUBMIT APPLICATION TO SUPABASE ---
+  const handleApplicationSubmit = async (e) => {
     e.preventDefault();
-    const fd = new FormData(e.target);
+    if (!currentUser) return;
+    setSubmittingApp(true);
+
     const newApp = {
-      id: `APP-2026-${Math.floor(850 + Math.random() * 140)}`,
-      studentName: currentUser.name,
-      studentEmail: currentUser.email,
-      currentCountry: fd.get('currentCountry'),
-      currentInstitution: fd.get('currentInstitution'),
-      targetUniversity: fd.get('targetUniversity'),
-      course: fd.get('course'),
-      intake: fd.get('intake'),
+      id: `OA-${Math.floor(100000 + Math.random() * 900000)}`,
+      student_name: currentUser.name,
+      student_email: currentUser.email,
+      current_country: appForm.currentCountry,
+      current_institution: appForm.currentInstitution || 'Current Onshore Institution',
+      target_university: appForm.targetUniversity,
+      course: appForm.course,
+      intake: appForm.intake,
       status: 'Documents Received & Verified',
-      submittedDate: new Date().toISOString().split('T')[0],
+      submitted_date: new Date().toISOString().split('T')[0],
       docs: [
-        fd.get('passportFile')?.name || 'Passport_Copy.pdf',
-        fd.get('visaFile')?.name || 'Current_Visa_Permit.pdf',
-        fd.get('transcriptFile')?.name || 'Academic_Transcripts.pdf'
+        appForm.passportFile || 'Passport_Copy.pdf',
+        appForm.transcriptFile || 'Academic_Transcripts.pdf',
+        appForm.visaFile || 'Current_Study_Permit_Visa.pdf'
       ],
-      offerReady: false
+      offer_ready: false
     };
 
-    setApplications([newApp, ...applications]);
-    setSelectedUniForApply(null);
-    showToast(
-      'Application & Docs Sent!',
-      `All documents dispatched to ${CONTACT_EMAIL}. Track live status below.`
-    );
+    const { error } = await supabase.from('applications').insert([newApp]);
+
+    if (error) {
+      showToast('Submission Failed', error.message);
+    } else {
+      await fetchApplications();
+      showToast('Application Submitted!', `Reference ID ${newApp.id} saved permanently.`);
+      setAppForm({
+        ...appForm,
+        currentInstitution: '',
+        passportFile: '',
+        transcriptFile: '',
+        visaFile: ''
+      });
+    }
+    setSubmittingApp(false);
   };
 
-  const handleAdminStatusChange = (appId, newStatus) => {
-    setApplications(applications.map(app => {
-      if (app.id === appId) {
-        const isOffer = newStatus.toLowerCase().includes('offer');
-        return { ...app, status: newStatus, offerReady: isOffer };
-      }
-      return app;
-    }));
-    showToast('Status Updated', `Application ${appId} updated to "${newStatus}".`);
+  // --- ADMIN UPDATE STATUS IN SUPABASE ---
+  const updateApplicationStatus = async (id, newStatus) => {
+    const isOfferReady = newStatus === 'Unconditional Offer Letter Ready' || newStatus === 'Conditional Offer Issued';
+
+    const { error } = await supabase
+      .from('applications')
+      .update({ status: newStatus, offer_ready: isOfferReady })
+      .eq('id', id);
+
+    if (error) {
+      showToast('Update Error', error.message);
+    } else {
+      setApplications((prev) =>
+        prev.map((app) => (app.id === id ? { ...app, status: newStatus, offer_ready: isOfferReady } : app))
+      );
+      showToast('Status Updated', `Application ${id} updated to "${newStatus}".`);
+    }
   };
 
-  const handleDownloadOffer = (app) => {
-    const offerText = `
+  const handleDownloadOfferLetter = (app) => {
+    const letterContent = `
 ====================================================================
-                  OFFICIAL LETTER OF OFFER (ONSHORE)
+                  ONSHORE ADMISSIONS — OFFICIAL OFFER SUMMARY
 ====================================================================
-Reference ID: ${app.id}
-Date Issued:  ${new Date().toLocaleDateString()}
-Student Name: ${app.studentName}
-Email:        ${app.studentEmail}
+Reference ID:        ${app.id}
+Date Issued:         ${new Date().toLocaleDateString()}
+Student Name:        ${app.student_name}
+Student Email:       ${app.student_email}
+Current Location:    ${app.current_country} (${app.current_institution})
 
-Institution:  ${app.targetUniversity}
-Program:      ${app.course}
-Intake:       ${app.intake}
-Study Mode:   Onshore Transfer / Study Extension (${app.currentCountry})
+ADMISSION DETAILS:
+Target Institution:  ${app.target_university}
+Program / Course:    ${app.course}
+Commencement Intake: ${app.intake}
+Application Status:  ${app.status}
 
-Status:       OFFER CONFIRMED
-Processed By: Onshore Admissions (${CONTACT_EMAIL})
-
-NEXT STEPS FOR STUDENT:
-1. Review your fee schedule and deposit deadline.
-2. Contact our post-offer visa team at ${CONTACT_EMAIL} for your
-   official CoE / LOA / I-20 and study permit extension filing.
+Congratulations! Your onshore transfer/extension application has been
+approved. Please contact info@theonshoreadmissions.com for enrollment
+confirmation and COE / I-20 / LOA issuance steps.
 ====================================================================
     `.trim();
 
-    const blob = new Blob([offerText], { type: 'text/plain;charset=utf-8' });
+    const blob = new Blob([letterContent], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -304,105 +369,85 @@ NEXT STEPS FOR STUDENT:
     showToast('Offer Letter Downloaded', `${app.id}_Offer_Letter.txt saved to your device.`);
   };
 
-  const handleAddBlog = (e) => {
+  const handleAdminUnlock = (e) => {
     e.preventDefault();
-    const fd = new FormData(e.target);
-    const newBlog = {
+    if (adminPasswordInput === ADMIN_PASSCODE) {
+      setIsAdminUnlocked(true);
+      setAdminPasswordInput('');
+      showToast('Admin Access Granted', 'Welcome to the Onshore Admissions Admin Dashboard.');
+    } else {
+      showToast('Incorrect Password', 'Please enter the valid Admin Passcode.');
+    }
+  };
+
+  const handlePublishBlog = (e) => {
+    e.preventDefault();
+    if (!newBlog.title || !newBlog.content) return;
+    const created = {
       id: `b-${Date.now()}`,
-      title: fd.get('title'),
-      category: fd.get('category'),
+      title: newBlog.title,
+      category: newBlog.category,
       date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
       readTime: '4 min read',
-      summary: fd.get('summary'),
-      content: fd.get('content')
+      excerpt: newBlog.excerpt || newBlog.content.slice(0, 130) + '...',
+      content: newBlog.content
     };
-    setBlogs([newBlog, ...blogs]);
-    e.target.reset();
-    showToast('Blog Published!', 'Your new article is now live for organic traffic.');
+    setBlogs([created, ...blogs]);
+    setNewBlog({ title: '', category: 'Canada Onshore', excerpt: '', content: '' });
+    showToast('Blog Published', 'Your new onshore guide is now live.');
   };
 
-  const triggerMailForward = (subject, bodyText, successTitle) => {
-    showToast(successTitle, `Forwarded directly to ${CONTACT_EMAIL}`);
-    const mailtoUrl = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
-    window.open(mailtoUrl, '_blank');
-  };
-
-  const filteredUniversities = universities.filter(u => {
+  const filteredUniversities = INITIAL_UNIVERSITIES.filter((u) => {
     const matchesCountry = countryFilter === 'All' || u.country === countryFilter;
     const matchesQuery =
       u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      u.courses.some(c => c.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      u.city.toLowerCase().includes(searchQuery.toLowerCase());
+      u.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      u.courses.some((c) => c.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesCountry && matchesQuery;
   });
 
-  const userApplications = currentUser
-    ? applications.filter(a => a.studentEmail.toLowerCase() === currentUser.email.toLowerCase() || a.studentName === currentUser.name)
+  const studentApplications = currentUser
+    ? applications.filter((a) => a.student_email?.toLowerCase() === currentUser.email?.toLowerCase())
     : [];
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col">
+      {/* Toast Alert */}
       {toast && (
-        <div className="fixed bottom-5 right-5 z-50 max-w-md bg-slate-900 text-white px-5 py-4 rounded-xl shadow-2xl border border-slate-700 flex items-start gap-3">
-          <CheckCircle2 className="w-6 h-6 text-emerald-400 shrink-0 mt-0.5" />
+        <div className="fixed bottom-5 right-5 z-50 max-w-sm bg-slate-900 text-white px-5 py-4 rounded-2xl shadow-2xl border border-slate-700 flex items-start gap-3 animate-fade-in">
+          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
           <div>
-            <h4 className="font-semibold text-sm">{toast.title}</h4>
-            <p className="text-xs text-slate-300 mt-1">{toast.message}</p>
+            <p className="font-semibold text-sm">{toast.title}</p>
+            <p className="text-xs text-slate-300 mt-0.5">{toast.message}</p>
           </div>
         </div>
       )}
 
-      <div className="bg-indigo-950 text-indigo-100 text-xs py-2 px-4">
-        <div className="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-2">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span>Specialized Onshore College/University Transfers & Study Extensions: <strong>USA • Canada • Australia</strong></span>
-          </div>
-          <div className="flex items-center gap-4">
-            <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-white flex items-center gap-1">
-              <Mail className="w-3.5 h-3.5" /> {CONTACT_EMAIL}
-            </a>
-            <button
-              onClick={() => {
-                setIsAdminMode(!isAdminMode);
-                navigate('portal');
-              }}
-              className="text-amber-300 hover:text-amber-200 font-medium underline"
-            >
-              {isAdminMode ? 'Exit Admin View' : 'Counselor / Admin Panel'}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div
-            onClick={() => navigate('home')}
-            className="flex items-center gap-2.5 cursor-pointer group"
-          >
-            <div className="bg-indigo-600 text-white p-2 rounded-xl group-hover:bg-indigo-700 transition">
+      {/* Navbar */}
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 py-3 flex items-center justify-between">
+          <button onClick={() => navigate('home')} className="flex items-center gap-2.5 text-left">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-700 to-indigo-800 flex items-center justify-center text-white shadow-md">
               <GraduationCap className="w-6 h-6" />
             </div>
             <div>
-              <span className="font-extrabold text-xl tracking-tight text-slate-900">
-                Onshore<span className="text-indigo-600">Admissions</span>
+              <span className="font-bold text-lg tracking-tight text-slate-900 block leading-none">
+                Onshore Admissions
               </span>
-              <span className="block text-[10px] uppercase tracking-widest text-slate-500 font-semibold -mt-1">
-                Study Transfers & Extensions
+              <span className="text-[11px] font-medium text-blue-700 tracking-wider uppercase">
+                USA • Canada • Australia
               </span>
             </div>
-          </div>
+          </button>
 
+          {/* Desktop Nav */}
           <nav className="hidden lg:flex items-center gap-6">
-            {navItems.map(item => (
+            {navItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => navigate(item.id)}
                 className={`text-sm font-medium transition ${
-                  activePage === item.id
-                    ? 'text-indigo-600 font-semibold'
-                    : 'text-slate-600 hover:text-slate-900'
+                  activePage === item.id ? 'text-blue-700 font-semibold' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 {item.label}
@@ -410,439 +455,302 @@ NEXT STEPS FOR STUDENT:
             ))}
           </nav>
 
-          <div className="hidden lg:flex items-center gap-3">
-            {currentUser ? (
-              <button
-                onClick={() => navigate('portal')}
-                className="flex items-center gap-2 bg-indigo-50 text-indigo-700 border border-indigo-200 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-100 transition"
-              >
-                <User className="w-4 h-4" />
-                {currentUser.name} (Portal)
-              </button>
-            ) : (
-              <button
-                onClick={() => navigate('portal')}
-                className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition shadow-sm flex items-center gap-1.5"
-              >
-                Student Login / Sign Up <ArrowRight className="w-4 h-4" />
-              </button>
-            )}
+          {/* Portal Buttons */}
+          <div className="hidden sm:flex items-center gap-2.5">
+            <button
+              onClick={() => navigate('student-portal')}
+              className={`px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center gap-1.5 ${
+                activePage === 'student-portal'
+                  ? 'bg-blue-700 text-white shadow-sm'
+                  : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
+              }`}
+            >
+              <User className="w-4 h-4" />
+              {currentUser ? 'My Portal' : 'Student Login'}
+            </button>
+            <button
+              onClick={() => navigate('admin-portal')}
+              className={`px-3.5 py-2 rounded-xl text-sm font-semibold transition flex items-center gap-1.5 ${
+                activePage === 'admin-portal'
+                  ? 'bg-slate-900 text-white'
+                  : 'border border-slate-300 text-slate-700 hover:bg-slate-100'
+              }`}
+            >
+              <ShieldCheck className="w-4 h-4" />
+              Admin
+            </button>
           </div>
 
+          {/* Mobile Hamburger */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100"
+            className="lg:hidden p-2 rounded-lg text-slate-700 hover:bg-slate-100"
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
 
+        {/* Mobile Drawer */}
         {mobileMenuOpen && (
-          <div className="lg:hidden bg-white border-b border-slate-200 px-4 pt-2 pb-5 space-y-2">
-            {navItems.map(item => (
+          <div className="lg:hidden bg-white border-t border-slate-200 px-4 py-4 space-y-2">
+            {navItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => navigate(item.id)}
-                className="block w-full text-left px-3 py-2 rounded-lg text-base font-medium text-slate-700 hover:bg-slate-50"
+                className="block w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-100"
               >
                 {item.label}
               </button>
             ))}
-            <div className="pt-2 border-t border-slate-100">
+            <div className="pt-2 border-t border-slate-100 grid grid-cols-2 gap-2">
               <button
-                onClick={() => navigate('portal')}
-                className="w-full bg-indigo-600 text-white py-2.5 rounded-lg font-semibold text-sm"
+                onClick={() => navigate('student-portal')}
+                className="py-2.5 px-3 rounded-xl bg-blue-700 text-white text-sm font-semibold text-center"
               >
-                {currentUser ? `Open Portal (${currentUser.name})` : 'Student Login / Sign Up'}
+                {currentUser ? 'My Portal' : 'Student Login'}
+              </button>
+              <button
+                onClick={() => navigate('admin-portal')}
+                className="py-2.5 px-3 rounded-xl bg-slate-900 text-white text-sm font-semibold text-center"
+              >
+                Admin Panel
               </button>
             </div>
           </div>
         )}
       </header>
 
-      <main className="flex-grow">
+      {/* MAIN CONTENT */}
+      <main className="flex-1">
+        {/* 1. HOME PAGE */}
         {activePage === 'home' && (
           <div>
-            <section className="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white py-20 px-4">
+            <section className="bg-gradient-to-br from-slate-950 via-blue-950 to-indigo-950 text-white py-20 px-4">
               <div className="max-w-7xl mx-auto grid lg:grid-cols-12 gap-12 items-center">
                 <div className="lg:col-span-7 space-y-6">
-                  <div className="inline-flex items-center gap-2 bg-indigo-500/20 border border-indigo-400/30 px-3.5 py-1.5 rounded-full text-xs font-semibold text-indigo-200">
-                    <Globe className="w-4 h-4 text-indigo-300" />
-                    Already Studying in USA, Canada, or Australia?
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-200 text-xs font-semibold">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    Direct Onshore Admissions & Institution Transfers
                   </div>
                   <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight leading-tight">
-                    Transfer Universities or Extend Your Study Visa <span className="text-indigo-400">Zero Service Fee.</span>
+                    Already Studying in the <span className="text-blue-400">USA, Canada, or Australia?</span>
                   </h1>
                   <p className="text-lg text-slate-300 max-w-2xl leading-relaxed">
-                    Apply directly to top partner universities and colleges through your Onshore Admissions portal. Upload documents once, track live application status, and download your official Offer Letter faster.
+                    Seamlessly change your university or college, extend your study permit, or progress to a Master’s/Post-Grad program—with zero service fees and real-time application tracking.
                   </p>
-                  <div className="flex flex-wrap gap-4 pt-2">
+                  <div className="flex flex-wrap gap-3 pt-2">
                     <button
-                      onClick={() => navigate('portal')}
-                      className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3.5 rounded-xl font-semibold text-base shadow-lg shadow-indigo-600/30 flex items-center gap-2 transition"
+                      onClick={() => navigate('student-portal')}
+                      className="px-6 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold shadow-lg shadow-blue-600/30 flex items-center gap-2 transition"
                     >
-                      Apply Through Student Portal <ArrowRight className="w-5 h-5" />
+                      Apply / Student Portal <ArrowRight className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => navigate('universities')}
-                      className="bg-white/10 hover:bg-white/20 text-white border border-white/20 px-6 py-3.5 rounded-xl font-semibold text-base transition"
+                      className="px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold border border-white/15 transition"
                     >
-                      Browse Universities
+                      Explore Universities
                     </button>
-                  </div>
-                  <div className="grid grid-cols-3 gap-4 pt-6 border-t border-white/10 max-w-lg">
-                    <div>
-                      <div className="text-2xl font-bold text-white">$0</div>
-                      <div className="text-xs text-slate-400">Student Application Fee</div>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold text-white">150+</div>
-                      <div className="text-xs text-slate-400">Partner Institutions</div>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold text-white">48 Hrs</div>
-                      <div className="text-xs text-slate-400">Document Verification</div>
-                    </div>
                   </div>
                 </div>
 
-                <div className="lg:col-span-5 bg-white text-slate-900 rounded-2xl p-6 sm:p-8 shadow-2xl">
-                  <h3 className="text-xl font-bold mb-1">Find Your Next Onshore Program</h3>
-                  <p className="text-sm text-slate-500 mb-5">Select your current study country to explore transfer & extension options.</p>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1.5">Study Destination</label>
-                      <select
-                        value={countryFilter}
-                        onChange={(e) => setCountryFilter(e.target.value)}
-                        className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-indigo-600 focus:outline-none"
-                      >
-                        <option value="All">All Countries (USA, Canada, Australia)</option>
-                        <option value="Canada">Canada (DLI Transfer / PGWP Extension)</option>
-                        <option value="USA">USA (F-1 SEVIS Transfer / STEM Master's)</option>
-                        <option value="Australia">Australia (Onshore CoE / Subclass 500)</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1.5">Course or University Keyword</label>
-                      <input
-                        type="text"
-                        placeholder="e.g. Data Science, MBA, Toronto, STEM..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-600 focus:outline-none"
-                      />
-                    </div>
-                    <button
-                      onClick={() => navigate('universities')}
-                      className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3.5 rounded-xl transition flex items-center justify-center gap-2"
-                    >
-                      <Search className="w-4 h-4" /> Search Eligible Programs
-                    </button>
+                <div className="lg:col-span-5">
+                  <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-3xl p-6 space-y-4">
+                    <h3 className="font-bold text-lg text-white">Why Onshore Students Choose Us</h3>
+                    {[
+                      { title: 'Fast-Track Offer Letters', desc: 'Priority institutional processing for onshore DLI, SEVIS I-20 & CoE transfers.' },
+                      { title: '100% Digital Document Portal', desc: 'Upload passport, transcripts & current visa online and track every stage live.' },
+                      { title: 'Onshore Transfer Scholarships', desc: 'Access exclusive tuition waivers up to 25% for onshore international students.' }
+                    ].map((feat, i) => (
+                      <div key={i} className="p-4 rounded-2xl bg-slate-900/60 border border-white/10 flex gap-3.5">
+                        <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                        <div>
+                          <h4 className="font-semibold text-sm text-white">{feat.title}</h4>
+                          <p className="text-xs text-slate-300 mt-1">{feat.desc}</p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
             </section>
 
-            <section className="py-16 px-4 max-w-7xl mx-auto">
+            {/* Countries Section */}
+            <section className="max-w-7xl mx-auto px-4 py-16">
               <div className="text-center max-w-2xl mx-auto mb-12">
-                <h2 className="text-3xl font-bold text-slate-900">How Onshore Admissions Works</h2>
-                <p className="text-slate-600 mt-2">
-                  We partner directly with universities so students pay zero counseling fees while receiving end-to-end offer & visa support.
-                </p>
+                <h2 className="text-3xl font-bold text-slate-900">Specialized Onshore Transfer Destinations</h2>
+                <p className="text-slate-600 mt-2">Select your current study country to browse partner universities and transfer pathways.</p>
               </div>
-              <div className="grid md:grid-cols-4 gap-6">
+              <div className="grid md:grid-cols-3 gap-6">
                 {[
                   {
-                    step: '01',
-                    title: 'Create Student Account',
-                    desc: 'Sign up in 30 seconds and choose your preferred university and course in USA, Canada, or Australia.',
-                    icon: UserCheck
+                    country: 'Canada',
+                    tag: 'DLI Transfer & Study Extension',
+                    points: ['Post-Grad Diplomas & Master’s', 'PAL & Study Permit Extension Support', 'Toronto, Vancouver, Calgary & More']
                   },
                   {
-                    step: '02',
-                    title: 'Upload Documents Online',
-                    desc: 'Submit your passport, current visa/permit, and transcripts—sent directly to our admissions desk.',
-                    icon: Upload
+                    country: 'USA',
+                    tag: 'SEVIS I-20 Transfer & Day-1/STEM',
+                    points: ['STEM Master’s & MBA Programs', 'Smooth DSO SEVIS Record Release', 'Boston, Seattle, Texas & California']
                   },
                   {
-                    step: '03',
-                    title: 'Track Live Status',
-                    desc: 'Log in anytime to view real-time progress as our counselors submit and follow up with the university.',
-                    icon: Clock
-                  },
-                  {
-                    step: '04',
-                    title: 'Download Offer & Extend',
-                    desc: 'Download your official Offer Letter directly from your dashboard and email our visa team for CoE/LOA/I-20.',
-                    icon: Download
+                    country: 'Australia',
+                    tag: 'CoE Transfer & Subclass 500',
+                    points: ['AQF Level Progression & Master’s', 'GS Requirement & Release Guidance', 'Sydney, Melbourne, Brisbane & Perth']
                   }
                 ].map((item) => (
-                  <div key={item.step} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="bg-indigo-50 text-indigo-600 p-3 rounded-xl">
-                        <item.icon className="w-6 h-6" />
-                      </div>
-                      <span className="text-2xl font-black text-slate-200">{item.step}</span>
+                  <div key={item.country} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                    <div>
+                      <span className="text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-3 py-1 rounded-full">
+                        {item.tag}
+                      </span>
+                      <h3 className="text-2xl font-bold mt-4 text-slate-900">{item.country}</h3>
+                      <ul className="mt-4 space-y-2.5">
+                        {item.points.map((pt, idx) => (
+                          <li key={idx} className="text-sm text-slate-600 flex items-center gap-2">
+                            <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" /> {pt}
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                    <h3 className="font-bold text-lg text-slate-900 mb-2">{item.title}</h3>
-                    <p className="text-sm text-slate-600 leading-relaxed">{item.desc}</p>
+                    <button
+                      onClick={() => {
+                        setCountryFilter(item.country);
+                        navigate('universities');
+                      }}
+                      className="mt-6 w-full py-2.5 rounded-xl bg-slate-900 hover:bg-blue-700 text-white text-sm font-semibold transition flex items-center justify-center gap-1.5"
+                    >
+                      View {item.country} Programs <ChevronRight className="w-4 h-4" />
+                    </button>
                   </div>
                 ))}
-              </div>
-            </section>
-
-            <section className="bg-white py-16 px-4 border-t border-slate-200">
-              <div className="max-w-7xl mx-auto">
-                <div className="flex flex-wrap justify-between items-end mb-10 gap-4">
-                  <div>
-                    <h2 className="text-3xl font-bold text-slate-900">Latest Onshore Visa & Transfer Guides</h2>
-                    <p className="text-slate-600 mt-1">Updated compliance guides for international students extending their studies.</p>
-                  </div>
-                  <button
-                    onClick={() => navigate('blogs')}
-                    className="text-indigo-600 font-semibold text-sm flex items-center gap-1 hover:underline"
-                  >
-                    Read All Articles <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
-                <div className="grid md:grid-cols-3 gap-6">
-                  {blogs.slice(0, 3).map(blog => (
-                    <div key={blog.id} className="bg-slate-50 rounded-2xl p-6 border border-slate-200 flex flex-col justify-between">
-                      <div>
-                        <span className="inline-block bg-indigo-100 text-indigo-700 text-xs font-semibold px-3 py-1 rounded-full mb-3">
-                          {blog.category}
-                        </span>
-                        <h3 className="font-bold text-lg text-slate-900 mb-2">{blog.title}</h3>
-                        <p className="text-sm text-slate-600 line-clamp-3">{blog.summary}</p>
-                      </div>
-                      <div className="pt-4 mt-4 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
-                        <span>{blog.date}</span>
-                        <button onClick={() => navigate('blogs')} className="text-indigo-600 font-semibold hover:underline">
-                          Read More →
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
               </div>
             </section>
           </div>
         )}
 
+        {/* 2. UNIVERSITIES & COURSES */}
         {activePage === 'universities' && (
-          <div className="max-w-7xl mx-auto py-12 px-4">
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold text-slate-900">Partner Universities & Onshore Programs</h1>
-              <p className="text-slate-600 mt-1">Select your dream university and click "Apply Through Us" to submit your documents via the Student Portal.</p>
-            </div>
-
-            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm mb-8 flex flex-wrap gap-4 items-center justify-between">
+          <section className="max-w-7xl mx-auto px-4 py-12">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+              <div>
+                <h1 className="text-3xl font-bold text-slate-900">Partner Universities & Onshore Programs</h1>
+                <p className="text-slate-600 mt-1">Filter by country or search courses available for immediate onshore transfer.</p>
+              </div>
               <div className="flex flex-wrap gap-2">
-                {['All', 'Canada', 'USA', 'Australia'].map(country => (
+                {['All', 'Canada', 'USA', 'Australia'].map((c) => (
                   <button
-                    key={country}
-                    onClick={() => setCountryFilter(country)}
+                    key={c}
+                    onClick={() => setCountryFilter(c)}
                     className={`px-4 py-2 rounded-xl text-sm font-semibold transition ${
-                      countryFilter === country
-                        ? 'bg-indigo-600 text-white'
-                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                      countryFilter === c
+                        ? 'bg-blue-700 text-white'
+                        : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
                     }`}
                   >
-                    {country}
+                    {c}
                   </button>
                 ))}
               </div>
-              <div className="relative flex-grow max-w-md">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
-                <input
-                  type="text"
-                  placeholder="Search university, city, or course..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-600 focus:outline-none"
-                />
-              </div>
+            </div>
+
+            <div className="relative mb-8">
+              <Search className="w-5 h-5 text-slate-400 absolute left-4 top-3.5" />
+              <input
+                type="text"
+                placeholder="Search university, city, or course (e.g. Project Management, Data Science, STEM)..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 rounded-xl bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm"
+              />
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
-              {filteredUniversities.map(uni => (
-                <div key={uni.id} className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+              {filteredUniversities.map((uni) => (
+                <div key={uni.id} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between">
                   <div>
-                    <div className="flex items-start justify-between gap-4 mb-3">
-                      <div>
-                        <span className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-md mb-2">
-                          <MapPin className="w-3.5 h-3.5" /> {uni.country} • {uni.city}
-                        </span>
-                        <h3 className="text-xl font-bold text-slate-900">{uni.name}</h3>
-                      </div>
-                      <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold px-3 py-1 rounded-full shrink-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700">
+                        {uni.country}
+                      </span>
+                      <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full">
                         {uni.scholarship}
                       </span>
                     </div>
-
-                    <div className="grid grid-cols-2 gap-3 my-4 p-3 bg-slate-50 rounded-xl text-xs">
-                      <div className="flex items-center gap-2 text-slate-700">
-                        <Calendar className="w-4 h-4 text-indigo-600" />
-                        <span><strong>Intakes:</strong> {uni.intake}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-slate-700">
-                        <DollarSign className="w-4 h-4 text-indigo-600" />
-                        <span><strong>Est. Tuition:</strong> {uni.tuition}</span>
-                      </div>
+                    <h3 className="text-xl font-bold text-slate-900 mt-3">{uni.name}</h3>
+                    <div className="flex flex-wrap gap-4 text-xs text-slate-500 mt-2">
+                      <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {uni.city}</span>
+                      <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> {uni.intake}</span>
+                      <span className="flex items-center gap-1"><DollarSign className="w-3.5 h-3.5" /> {uni.tuition}</span>
                     </div>
-
-                    <div className="mb-5">
-                      <div className="text-xs font-semibold uppercase text-slate-400 mb-2">Popular Onshore Transfer Courses:</div>
+                    <div className="mt-4 pt-4 border-t border-slate-100">
+                      <p className="text-xs font-semibold uppercase text-slate-400 mb-2">Available Onshore Courses</p>
                       <ul className="space-y-1.5">
                         {uni.courses.map((course, idx) => (
                           <li key={idx} className="text-sm text-slate-700 flex items-center gap-2">
-                            <CheckCircle2 className="w-4 h-4 text-indigo-500 shrink-0" />
-                            {course}
+                            <div className="w-1.5 h-1.5 rounded-full bg-blue-600" /> {course}
                           </li>
                         ))}
                       </ul>
                     </div>
                   </div>
-
                   <button
                     onClick={() => {
-                      setSelectedUniForApply(uni);
-                      navigate('portal');
+                      setAppForm({
+                        ...appForm,
+                        currentCountry: uni.country,
+                        targetUniversity: uni.name,
+                        course: uni.courses[0]
+                      });
+                      navigate('student-portal');
                     }}
-                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl transition flex items-center justify-center gap-2"
+                    className="mt-6 w-full py-2.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold transition"
                   >
-                    Apply Through Us (Zero Fee) <ArrowRight className="w-4 h-4" />
+                    Apply to {uni.name.split(' - ')[0]}
                   </button>
                 </div>
               ))}
             </div>
-          </div>
+          </section>
         )}
 
-        {activePage === 'portal' && (
-          <div className="max-w-7xl mx-auto py-10 px-4">
-            <div className="bg-slate-900 text-white rounded-2xl p-5 mb-8 flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <h1 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
-                  {isAdminMode ? (
-                    <>
-                      <ShieldCheck className="w-6 h-6 text-amber-400" /> Counselor & Admin Control Panel
-                    </>
-                  ) : (
-                    <>
-                      <GraduationCap className="w-6 h-6 text-indigo-400" /> Onshore Student Application Portal
-                    </>
-                  )}
-                </h1>
-                <p className="text-xs sm:text-sm text-slate-300 mt-1">
-                  {isAdminMode
-                    ? `Manage incoming applications sent to ${CONTACT_EMAIL}, update statuses, and issue Offer Letters.`
-                    : 'Submit your documents, track live admission progress, download Offer Letters, and contact our post-offer support team.'}
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setIsAdminMode(!isAdminMode)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition ${
-                    isAdminMode
-                      ? 'bg-indigo-600 text-white'
-                      : 'bg-amber-400 text-slate-950 hover:bg-amber-300'
-                  }`}
-                >
-                  {isAdminMode ? 'Switch to Student View' : 'Switch to Admin Status Updater'}
-                </button>
-                {currentUser && !isAdminMode && (
-                  <button
-                    onClick={() => {
-                      setCurrentUser(null);
-                      showToast('Logged Out', 'You have been signed out of the student portal.');
-                    }}
-                    className="bg-white/10 hover:bg-white/20 text-white px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1"
-                  >
-                    <LogOut className="w-3.5 h-3.5" /> Logout
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {isAdminMode ? (
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="p-6 border-b border-slate-200 flex flex-wrap justify-between items-center gap-4">
-                  <div>
-                    <h2 className="text-lg font-bold text-slate-900">All Student Applications ({applications.length})</h2>
-                    <p className="text-xs text-slate-500">Changing a student's status to "Offer Letter Issued" immediately enables their Offer Letter download.</p>
+        {/* 3. STUDENT PORTAL (REAL SUPABASE AUTH + DATABASE) */}
+        {activePage === 'student-portal' && (
+          <section className="max-w-6xl mx-auto px-4 py-12">
+            {!currentUser ? (
+              <div className="max-w-md mx-auto bg-white rounded-3xl p-8 border border-slate-200 shadow-lg">
+                <div className="text-center mb-6">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center mx-auto mb-3">
+                    <UserCheck className="w-6 h-6" />
                   </div>
-                  <span className="text-xs bg-indigo-50 text-indigo-700 font-semibold px-3 py-1.5 rounded-lg">
-                    Inbox Synced: {CONTACT_EMAIL}
-                  </span>
+                  <h1 className="text-2xl font-bold text-slate-900">
+                    {authMode === 'login' ? 'Student Portal Login' : 'Create Student Account'}
+                  </h1>
+                  <p className="text-sm text-slate-500 mt-1">
+                    {authMode === 'login'
+                      ? 'Sign in to submit documents, track status & download offer letters.'
+                      : 'Register in 30 seconds to start your onshore transfer application.'}
+                  </p>
                 </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm">
-                    <thead className="bg-slate-50 text-slate-600 text-xs uppercase border-b border-slate-200">
-                      <tr>
-                        <th className="px-6 py-3.5">App ID & Student</th>
-                        <th className="px-6 py-3.5">University & Course</th>
-                        <th className="px-6 py-3.5">Uploaded Docs</th>
-                        <th className="px-6 py-3.5">Update Live Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-200">
-                      {applications.map(app => (
-                        <tr key={app.id} className="hover:bg-slate-50">
-                          <td className="px-6 py-4">
-                            <div className="font-bold text-indigo-600">{app.id}</div>
-                            <div className="font-semibold text-slate-900">{app.studentName}</div>
-                            <div className="text-xs text-slate-500">{app.studentEmail} • In {app.currentCountry}</div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="font-semibold text-slate-900">{app.targetUniversity}</div>
-                            <div className="text-xs text-slate-600">{app.course} ({app.intake})</div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex flex-wrap gap-1">
-                              {app.docs.map((d, i) => (
-                                <span key={i} className="text-[11px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">
-                                  {d}
-                                </span>
-                              ))}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <select
-                              value={app.status}
-                              onChange={(e) => handleAdminStatusChange(app.id, e.target.value)}
-                              className="border border-slate-300 rounded-lg px-3 py-2 text-xs font-semibold bg-white focus:ring-2 focus:ring-indigo-600"
-                            >
-                              {STATUS_OPTIONS.map(st => (
-                                <option key={st} value={st}>{st}</option>
-                              ))}
-                            </select>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            ) : !currentUser ? (
-              <div className="max-w-md mx-auto bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
-                <div className="flex border-b border-slate-200 mb-6">
+
+                <div className="grid grid-cols-2 bg-slate-100 p-1 rounded-xl mb-6">
                   <button
+                    type="button"
                     onClick={() => setAuthMode('login')}
-                    className={`flex-1 pb-3 text-sm font-bold border-b-2 transition ${
-                      authMode === 'login' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-400'
+                    className={`py-2 text-sm font-semibold rounded-lg transition ${
+                      authMode === 'login' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600'
                     }`}
                   >
-                    Student Login
+                    Login
                   </button>
                   <button
+                    type="button"
                     onClick={() => setAuthMode('signup')}
-                    className={`flex-1 pb-3 text-sm font-bold border-b-2 transition ${
-                      authMode === 'signup' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-400'
+                    className={`py-2 text-sm font-semibold rounded-lg transition ${
+                      authMode === 'signup' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600'
                     }`}
                   >
-                    New Student Sign Up
+                    Sign Up
                   </button>
                 </div>
 
@@ -850,12 +758,23 @@ NEXT STEPS FOR STUDENT:
                   {authMode === 'signup' && (
                     <>
                       <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1">Full Name (As on Passport)</label>
-                        <input required name="name" type="text" placeholder="e.g. Gurpreet Singh" className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm" />
+                        <label className="block text-xs font-semibold text-slate-700 mb-1">Full Name (As per Passport)</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="e.g. Arshdeep Singh"
+                          value={authForm.name}
+                          onChange={(e) => setAuthForm({ ...authForm, name: e.target.value })}
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-600 focus:outline-none"
+                        />
                       </div>
                       <div>
                         <label className="block text-xs font-semibold text-slate-700 mb-1">Current Study Country</label>
-                        <select name="country" className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm">
+                        <select
+                          value={authForm.country}
+                          onChange={(e) => setAuthForm({ ...authForm, country: e.target.value })}
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-600 focus:outline-none"
+                        >
                           <option value="Canada">Canada</option>
                           <option value="USA">USA</option>
                           <option value="Australia">Australia</option>
@@ -863,512 +782,618 @@ NEXT STEPS FOR STUDENT:
                       </div>
                     </>
                   )}
+
                   <div>
                     <label className="block text-xs font-semibold text-slate-700 mb-1">Email Address</label>
-                    <input required name="email" type="email" placeholder="you@example.com" className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm" />
+                    <input
+                      type="email"
+                      required
+                      placeholder="student@example.com"
+                      value={authForm.email}
+                      onChange={(e) => setAuthForm({ ...authForm, email: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-600 focus:outline-none"
+                    />
                   </div>
+
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">Password</label>
-                    <input required name="password" type="password" placeholder="••••••••" className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm" />
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Password (Min. 6 characters)</label>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        required
+                        minLength={6}
+                        placeholder="••••••••"
+                        value={authForm.password}
+                        onChange={(e) => setAuthForm({ ...authForm, password: e.target.value })}
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-600 focus:outline-none pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600"
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
                   </div>
-                  <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl transition">
-                    {authMode === 'login' ? 'Sign In to Portal' : 'Create Student Account'}
+
+                  <button
+                    type="submit"
+                    disabled={authLoading}
+                    className="w-full py-3 rounded-xl bg-blue-700 hover:bg-blue-800 disabled:opacity-60 text-white font-semibold text-sm transition shadow-md"
+                  >
+                    {authLoading
+                      ? 'Please wait...'
+                      : authMode === 'login'
+                      ? 'Sign In to Student Portal'
+                      : 'Create Account & Continue'}
                   </button>
                 </form>
-
-                <div className="mt-6 pt-5 border-t border-slate-100 text-center">
-                  <p className="text-xs text-slate-500 mb-2">Want to test the portal immediately?</p>
-                  <button
-                    onClick={handleQuickDemoLogin}
-                    className="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold py-2.5 rounded-xl text-xs transition"
-                  >
-                    1-Click Demo Student Login (With Ready Offer Letter)
-                  </button>
-                </div>
               </div>
             ) : (
-              <div className="grid lg:grid-cols-12 gap-8">
-                <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm h-fit">
-                  <h2 className="text-lg font-bold text-slate-900 mb-1">Apply to a University</h2>
-                  <p className="text-xs text-slate-500 mb-5">
-                    Select your course and attach documents. Everything goes directly to <strong>{CONTACT_EMAIL}</strong>.
-                  </p>
+              <div className="space-y-8">
+                {/* Student Header */}
+                <div className="bg-white rounded-2xl p-6 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <span className="text-xs font-semibold text-blue-700 bg-blue-50 px-3 py-1 rounded-full">
+                      Verified Onshore Student Account
+                    </span>
+                    <h1 className="text-2xl font-bold text-slate-900 mt-2">Welcome, {currentUser.name}</h1>
+                    <p className="text-sm text-slate-500">{currentUser.email}</p>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 text-sm font-semibold flex items-center gap-2 self-start"
+                  >
+                    <LogOut className="w-4 h-4" /> Logout
+                  </button>
+                </div>
 
-                  <form onSubmit={handleApplicationSubmit} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-3">
+                <div className="grid lg:grid-cols-12 gap-8">
+                  {/* New Application Form */}
+                  <div className="lg:col-span-5 bg-white rounded-2xl p-6 border border-slate-200 h-fit">
+                    <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                      <Upload className="w-5 h-5 text-blue-700" /> Submit New Transfer Application
+                    </h2>
+                    <form onSubmit={handleApplicationSubmit} className="space-y-4">
                       <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1">Current Country</label>
+                        <label className="block text-xs font-semibold text-slate-700 mb-1">Current Study Country</label>
                         <select
-                          name="currentCountry"
-                          defaultValue={selectedUniForApply?.country || currentUser.country}
-                          className="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm"
+                          value={appForm.currentCountry}
+                          onChange={(e) => setAppForm({ ...appForm, currentCountry: e.target.value })}
+                          className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm"
                         >
                           <option value="Canada">Canada</option>
                           <option value="USA">USA</option>
                           <option value="Australia">Australia</option>
                         </select>
                       </div>
+
                       <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1">Preferred Intake</label>
-                        <select name="intake" className="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm">
-                          <option value="Jan / Feb 2027">Jan / Feb 2027</option>
-                          <option value="May / Jul 2027">May / Jul 2027</option>
-                          <option value="Sep 2027">Sep 2027</option>
+                        <label className="block text-xs font-semibold text-slate-700 mb-1">Current College / University Name</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="e.g. Conestoga College"
+                          value={appForm.currentInstitution}
+                          onChange={(e) => setAppForm({ ...appForm, currentInstitution: e.target.value })}
+                          className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-700 mb-1">Target Institution</label>
+                        <select
+                          value={appForm.targetUniversity}
+                          onChange={(e) => {
+                            const selected = INITIAL_UNIVERSITIES.find((u) => u.name === e.target.value);
+                            setAppForm({
+                              ...appForm,
+                              targetUniversity: e.target.value,
+                              course: selected ? selected.courses[0] : appForm.course
+                            });
+                          }}
+                          className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm"
+                        >
+                          {INITIAL_UNIVERSITIES.map((u) => (
+                            <option key={u.id} value={u.name}>
+                              {u.name} ({u.country})
+                            </option>
+                          ))}
                         </select>
                       </div>
-                    </div>
 
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">Current College / University</label>
-                      <input
-                        required
-                        name="currentInstitution"
-                        type="text"
-                        placeholder="e.g. Centennial College / Current School"
-                        className="w-full border border-slate-300 rounded-xl px-3.5 py-2 text-sm"
-                      />
-                    </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-700 mb-1">Program / Course</label>
+                        <input
+                          type="text"
+                          required
+                          value={appForm.course}
+                          onChange={(e) => setAppForm({ ...appForm, course: e.target.value })}
+                          className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm"
+                        />
+                      </div>
 
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">Target University / College</label>
-                      <select
-                        name="targetUniversity"
-                        defaultValue={selectedUniForApply?.name || universities[0].name}
-                        className="w-full border border-slate-300 rounded-xl px-3.5 py-2 text-sm"
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-700 mb-1">Preferred Intake</label>
+                        <select
+                          value={appForm.intake}
+                          onChange={(e) => setAppForm({ ...appForm, intake: e.target.value })}
+                          className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm"
+                        >
+                          <option value="Jan / Spring 2027">Jan / Spring 2027</option>
+                          <option value="May / Summer 2027">May / Summer 2027</option>
+                          <option value="Sep / Fall 2027">Sep / Fall 2027</option>
+                        </select>
+                      </div>
+
+                      <div className="pt-2 border-t border-slate-100 space-y-3">
+                        <p className="text-xs font-bold text-slate-700">Upload Required Documents (PDF / JPG)</p>
+                        <div>
+                          <label className="block text-[11px] text-slate-500 mb-1">1. Valid Passport Copy</label>
+                          <input
+                            type="file"
+                            required
+                            onChange={(e) =>
+                              setAppForm({ ...appForm, passportFile: e.target.files[0]?.name || 'Passport.pdf' })
+                            }
+                            className="w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 file:font-semibold"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[11px] text-slate-500 mb-1">2. Academic Transcripts / Marksheets</label>
+                          <input
+                            type="file"
+                            required
+                            onChange={(e) =>
+                              setAppForm({ ...appForm, transcriptFile: e.target.files[0]?.name || 'Transcripts.pdf' })
+                            }
+                            className="w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 file:font-semibold"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[11px] text-slate-500 mb-1">3. Current Study Permit / I-20 / CoE</label>
+                          <input
+                            type="file"
+                            required
+                            onChange={(e) =>
+                              setAppForm({ ...appForm, visaFile: e.target.files[0]?.name || 'Study_Permit.pdf' })
+                            }
+                            className="w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 file:font-semibold"
+                          />
+                        </div>
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={submittingApp}
+                        className="w-full py-3 rounded-xl bg-blue-700 hover:bg-blue-800 disabled:opacity-60 text-white font-semibold text-sm transition"
                       >
-                        {universities.map(u => (
-                          <option key={u.id} value={u.name}>{u.name} ({u.country})</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">Preferred Course / Program</label>
-                      <input
-                        required
-                        name="course"
-                        type="text"
-                        defaultValue={selectedUniForApply?.courses[0] || ''}
-                        placeholder="e.g. Master of Business Analytics"
-                        className="w-full border border-slate-300 rounded-xl px-3.5 py-2 text-sm"
-                      />
-                    </div>
-
-                    <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-3">
-                      <div className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                        <Upload className="w-3.5 h-3.5 text-indigo-600" /> Upload Required Documents (PDF/JPG)
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-medium text-slate-600 mb-1">1. Passport (Front & Back)</label>
-                        <input required name="passportFile" type="file" className="w-full text-xs text-slate-600 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-indigo-100 file:text-indigo-700 file:font-semibold" />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-medium text-slate-600 mb-1">2. Current Study Permit / Visa / I-20</label>
-                        <input required name="visaFile" type="file" className="w-full text-xs text-slate-600 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-indigo-100 file:text-indigo-700 file:font-semibold" />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-medium text-slate-600 mb-1">3. Academic Transcripts & English Score</label>
-                        <input required name="transcriptFile" type="file" className="w-full text-xs text-slate-600 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-indigo-100 file:text-indigo-700 file:font-semibold" />
-                      </div>
-                    </div>
-
-                    <button
-                      type="submit"
-                      className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl transition flex items-center justify-center gap-2 shadow-sm"
-                    >
-                      <Send className="w-4 h-4" /> Submit Application & Send Docs
-                    </button>
-                  </form>
-                </div>
-
-                <div className="lg:col-span-7 space-y-6">
-                  <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-                    <h2 className="text-lg font-bold text-slate-900 mb-1">My Applications & Live Status</h2>
-                    <p className="text-xs text-slate-500 mb-5">
-                      Track your application progress in real time. Once your Offer Letter arrives, download it directly below.
-                    </p>
-
-                    {userApplications.length === 0 ? (
-                      <div className="text-center py-10 bg-slate-50 rounded-xl border border-dashed border-slate-300">
-                        <FileText className="w-10 h-10 text-slate-400 mx-auto mb-2" />
-                        <p className="text-sm font-semibold text-slate-700">No applications submitted yet</p>
-                        <p className="text-xs text-slate-500 mt-1">Fill out the form on the left to submit your first university application.</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-4">
-                        {userApplications.map(app => (
-                          <div key={app.id} className="border border-slate-200 rounded-xl p-5 bg-slate-50/60">
-                            <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
-                              <div>
-                                <span className="text-xs font-bold text-indigo-600">{app.id} • Submitted {app.submittedDate}</span>
-                                <h3 className="font-bold text-base text-slate-900">{app.targetUniversity}</h3>
-                                <p className="text-sm text-slate-600">{app.course} ({app.intake})</p>
-                              </div>
-                              <span
-                                className={`px-3 py-1 rounded-full text-xs font-bold ${
-                                  app.offerReady
-                                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                                    : 'bg-amber-100 text-amber-800 border border-amber-300'
-                                }`}
-                              >
-                                {app.status}
-                              </span>
-                            </div>
-
-                            <div className="pt-3 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
-                              {app.offerReady ? (
-                                <button
-                                  onClick={() => handleDownloadOffer(app)}
-                                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm transition"
-                                >
-                                  <Download className="w-4 h-4" /> Download Official Offer Letter
-                                </button>
-                              ) : (
-                                <span className="text-xs text-slate-500 flex items-center gap-1.5">
-                                  <Clock className="w-4 h-4 text-amber-500" /> Offer Letter will unlock here once issued by university
-                                </span>
-                              )}
-
-                              <button
-                                onClick={() =>
-                                  triggerMailForward(
-                                    `Post-Offer & Visa Extension Help - ${app.id} (${app.studentName})`,
-                                    `Hello Onshore Admissions Team,\n\nI need assistance with the next steps (Tuition Deposit / CoE / LOA / I-20 / Study Visa Extension) for my application:\n\nApplication ID: ${app.id}\nUniversity: ${app.targetUniversity}\nCourse: ${app.course}\nCurrent Status: ${app.status}\n\nPlease guide me on the next steps.`,
-                                    'Post-Offer Support Request Ready'
-                                  )
-                                }
-                                className="bg-white hover:bg-indigo-50 text-indigo-700 border border-indigo-200 px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition"
-                              >
-                                <Mail className="w-3.5 h-3.5" /> Mail Team for Further Process
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                        {submittingApp ? 'Submitting Application...' : 'Submit Application'}
+                      </button>
+                    </form>
                   </div>
 
-                  <div className="bg-indigo-50 border border-indigo-200 rounded-2xl p-6 flex flex-wrap items-center justify-between gap-4">
-                    <div>
-                      <h3 className="font-bold text-indigo-950 text-base">Received Your Offer? Need Visa Extension or CoE / LOA / I-20 Help?</h3>
-                      <p className="text-xs text-indigo-800 mt-1">
-                        Our dedicated post-offer processing desk handles tuition fee receipts, SEVIS transfers, CoE issuance, and study permit extensions.
-                      </p>
+                  {/* Student Applications List */}
+                  <div className="lg:col-span-7 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h2 className="text-lg font-bold text-slate-900">
+                        My Applications ({studentApplications.length})
+                      </h2>
+                      <button
+                        onClick={fetchApplications}
+                        className="text-xs font-semibold text-blue-700 hover:underline"
+                      >
+                        Refresh Status
+                      </button>
                     </div>
-                    <a
-                      href={`mailto:${CONTACT_EMAIL}?subject=Post-Offer%20Processing%20Support`}
-                      className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shrink-0"
-                    >
-                      <Mail className="w-4 h-4" /> Email {CONTACT_EMAIL}
-                    </a>
+
+                    {loadingApps ? (
+                      <div className="bg-white rounded-2xl p-8 border border-slate-200 text-center text-sm text-slate-500">
+                        Loading your applications...
+                      </div>
+                    ) : studentApplications.length === 0 ? (
+                      <div className="bg-white rounded-2xl p-8 border border-slate-200 text-center">
+                        <FileText className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+                        <p className="font-semibold text-slate-700">No Applications Submitted Yet</p>
+                        <p className="text-xs text-slate-500 mt-1">
+                          Fill out the form on the left to submit your first onshore transfer or extension application.
+                        </p>
+                      </div>
+                    ) : (
+                      studentApplications.map((app) => (
+                        <div key={app.id} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
+                          <div className="flex flex-wrap items-start justify-between gap-2">
+                            <div>
+                              <span className="text-xs font-mono font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md">
+                                {app.id}
+                              </span>
+                              <h3 className="text-lg font-bold text-slate-900 mt-2">{app.target_university}</h3>
+                              <p className="text-sm text-slate-600">{app.course} • {app.intake}</p>
+                            </div>
+                            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-1.5">
+                              <Clock className="w-3.5 h-3.5" /> {app.status}
+                            </span>
+                          </div>
+
+                          <div className="text-xs text-slate-500 flex flex-wrap gap-2">
+                            <span className="font-semibold text-slate-700">Uploaded Docs:</span>
+                            {(app.docs || []).map((doc, idx) => (
+                              <span key={idx} className="bg-slate-100 px-2.5 py-0.5 rounded-md text-slate-700">
+                                {doc}
+                              </span>
+                            ))}
+                          </div>
+
+                          {app.offer_ready ? (
+                            <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                              <span className="text-xs font-semibold text-emerald-700 flex items-center gap-1.5">
+                                <CheckCircle2 className="w-4 h-4" /> Official Offer Letter Ready!
+                              </span>
+                              <button
+                                onClick={() => handleDownloadOfferLetter(app)}
+                                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-1.5"
+                              >
+                                <Download className="w-4 h-4" /> Download Offer Letter
+                              </button>
+                            </div>
+                          ) : (
+                            <p className="text-xs text-slate-400 pt-2 border-t border-slate-100">
+                              Our admissions team is reviewing your file. Your offer letter download button will unlock automatically once approved.
+                            </p>
+                          )}
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
               </div>
             )}
-          </div>
+          </section>
         )}
 
-        {activePage === 'providers' && (
-          <div className="max-w-7xl mx-auto py-12 px-4">
-            <div className="grid lg:grid-cols-12 gap-10 items-start">
-              <div className="lg:col-span-6 space-y-5">
-                <span className="inline-flex items-center gap-2 bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-xs font-bold">
-                  <Building2 className="w-4 h-4" /> For Universities, Colleges & Language Schools
-                </span>
-                <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900">
-                  Partner With Onshore Admissions for Verified Onshore Enrollments
-                </h1>
-                <p className="text-slate-600 leading-relaxed">
-                  We connect accredited institutions in the <strong>USA, Canada, and Australia</strong> with high-intent international students who are already onshore and looking to transfer or progress to higher degree programs.
-                </p>
+        {/* 4. ADMIN PANEL (PASSWORD LOCKED + LIVE DATABASE CONTROL) */}
+        {activePage === 'admin-portal' && (
+          <section className="max-w-7xl mx-auto px-4 py-12">
+            {!isAdminUnlocked ? (
+              <div className="max-w-md mx-auto bg-white rounded-3xl p-8 border border-slate-200 shadow-lg">
+                <div className="text-center mb-6">
+                  <div className="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center mx-auto mb-3">
+                    <Lock className="w-6 h-6" />
+                  </div>
+                  <h1 className="text-2xl font-bold text-slate-900">Admin Panel Access</h1>
+                  <p className="text-sm text-slate-500 mt-1">
+                    Enter your Admin Passcode to manage student applications and issue offer letters.
+                  </p>
+                </div>
 
-                <div className="space-y-3 pt-2">
-                  {[
-                    'Pre-screened onshore applicants with valid visas, academic transcripts, and local English proficiency.',
-                    'Higher visa certainty and immediate intake conversion without offshore visa delays.',
-                    'Direct recruitment & commission partnership agreements managed transparently.'
-                  ].map((point, idx) => (
-                    <div key={idx} className="flex items-start gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-                      <span className="text-sm text-slate-700">{point}</span>
+                <form onSubmit={handleAdminUnlock} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Admin Passcode</label>
+                    <input
+                      type="password"
+                      required
+                      placeholder="Enter Admin@2026"
+                      value={adminPasswordInput}
+                      onChange={(e) => setAdminPasswordInput(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="w-full py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm transition"
+                  >
+                    Unlock Admin Dashboard
+                  </button>
+                </form>
+              </div>
+            ) : (
+              <div className="space-y-8">
+                <div className="flex flex-wrap items-center justify-between gap-4 bg-slate-900 text-white p-6 rounded-2xl">
+                  <div>
+                    <h1 className="text-2xl font-bold">Onshore Admissions — Admin Dashboard</h1>
+                    <p className="text-sm text-slate-300 mt-1">
+                      Manage all student applications, verify documents, and release offer letters in real time.
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={fetchApplications}
+                      className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-sm font-semibold"
+                    >
+                      Refresh Data
+                    </button>
+                    <button
+                      onClick={() => setIsAdminUnlocked(false)}
+                      className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-sm font-semibold"
+                    >
+                      Lock Admin
+                    </button>
+                  </div>
+                </div>
+
+                {/* Applications Table */}
+                <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                  <div className="p-6 border-b border-slate-200 flex items-center justify-between">
+                    <h2 className="font-bold text-lg text-slate-900">
+                      All Student Applications ({applications.length})
+                    </h2>
+                  </div>
+
+                  {applications.length === 0 ? (
+                    <div className="p-8 text-center text-sm text-slate-500">
+                      No applications in database yet. Once a student submits an application, it will appear here immediately.
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse">
+                        <thead>
+                          <tr className="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-600 uppercase">
+                            <th className="py-3.5 px-4">Ref ID & Date</th>
+                            <th className="py-3.5 px-4">Student Details</th>
+                            <th className="py-3.5 px-4">Target Institution & Course</th>
+                            <th className="py-3.5 px-4">Documents</th>
+                            <th className="py-3.5 px-4">Update Status</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 text-sm">
+                          {applications.map((app) => (
+                            <tr key={app.id} className="hover:bg-slate-50/70">
+                              <td className="py-4 px-4 align-top">
+                                <span className="font-mono font-bold text-blue-700 block">{app.id}</span>
+                                <span className="text-xs text-slate-400">{app.submitted_date}</span>
+                              </td>
+                              <td className="py-4 px-4 align-top">
+                                <p className="font-semibold text-slate-900">{app.student_name}</p>
+                                <p className="text-xs text-slate-500">{app.student_email}</p>
+                                <p className="text-xs text-slate-500 mt-1">
+                                  From: {app.current_institution} ({app.current_country})
+                                </p>
+                              </td>
+                              <td className="py-4 px-4 align-top">
+                                <p className="font-semibold text-slate-900">{app.target_university}</p>
+                                <p className="text-xs text-slate-600">{app.course}</p>
+                                <span className="inline-block mt-1 text-[11px] bg-slate-100 px-2 py-0.5 rounded">
+                                  {app.intake}
+                                </span>
+                              </td>
+                              <td className="py-4 px-4 align-top">
+                                <div className="space-y-1">
+                                  {(app.docs || []).map((d, i) => (
+                                    <span key={i} className="block text-xs text-blue-700 bg-blue-50 px-2 py-0.5 rounded w-fit">
+                                      {d}
+                                    </span>
+                                  ))}
+                                </div>
+                              </td>
+                              <td className="py-4 px-4 align-top">
+                                <select
+                                  value={app.status}
+                                  onChange={(e) => updateApplicationStatus(app.id, e.target.value)}
+                                  className="px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold bg-white focus:ring-2 focus:ring-blue-600"
+                                >
+                                  {STATUS_STEPS.map((st) => (
+                                    <option key={st} value={st}>
+                                      {st}
+                                    </option>
+                                  ))}
+                                </select>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+
+                {/* Publish Blog Post */}
+                <div className="bg-white rounded-2xl p-6 border border-slate-200 max-w-2xl">
+                  <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                    <Plus className="w-5 h-5 text-blue-700" /> Publish New Onshore Visa / Admission Guide
+                  </h2>
+                  <form onSubmit={handlePublishBlog} className="space-y-4">
+                    <input
+                      type="text"
+                      required
+                      placeholder="Article Title"
+                      value={newBlog.title}
+                      onChange={(e) => setNewBlog({ ...newBlog, title: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm"
+                    />
+                    <select
+                      value={newBlog.category}
+                      onChange={(e) => setNewBlog({ ...newBlog, category: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm"
+                    >
+                      <option value="Canada Onshore">Canada Onshore</option>
+                      <option value="USA Onshore">USA Onshore</option>
+                      <option value="Australia Onshore">Australia Onshore</option>
+                    </select>
+                    <textarea
+                      rows={4}
+                      required
+                      placeholder="Write full guide content..."
+                      value={newBlog.content}
+                      onChange={(e) => setNewBlog({ ...newBlog, content: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm"
+                    />
+                    <button
+                      type="submit"
+                      className="px-5 py-2.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold"
+                    >
+                      Publish Article
+                    </button>
+                  </form>
+                </div>
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* 5. EDUCATION PROVIDERS (B2B) */}
+        {activePage === 'providers' && (
+          <section className="max-w-4xl mx-auto px-4 py-12">
+            <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm space-y-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold">
+                <Building2 className="w-4 h-4" /> Institutional & B2B Recruitment Partnerships
+              </div>
+              <h1 className="text-3xl font-bold text-slate-900">Partner With Onshore Admissions</h1>
+              <p className="text-slate-600 leading-relaxed">
+                We connect accredited universities, polytechnics, and colleges in the USA, Canada, and Australia with verified onshore international students seeking program progression, credit transfers, and study extensions.
+              </p>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  showToast('Partnership Inquiry Sent', 'Our B2B team will contact you via info@theonshoreadmissions.com.');
+                  e.target.reset();
+                }}
+                className="grid sm:grid-cols-2 gap-4 pt-2"
+              >
+                <input required placeholder="Institution / Organization Name" className="px-4 py-3 rounded-xl border border-slate-300 text-sm" />
+                <input required placeholder="Contact Person & Title" className="px-4 py-3 rounded-xl border border-slate-300 text-sm" />
+                <input type="email" required placeholder="Official Work Email" className="px-4 py-3 rounded-xl border border-slate-300 text-sm" />
+                <select className="px-4 py-3 rounded-xl border border-slate-300 text-sm">
+                  <option>Canada</option>
+                  <option>USA</option>
+                  <option>Australia</option>
+                </select>
+                <textarea rows={3} placeholder="Tell us about your onshore intake capacity and commission structure..." className="sm:col-span-2 px-4 py-3 rounded-xl border border-slate-300 text-sm" />
+                <button type="submit" className="sm:col-span-2 py-3 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-semibold text-sm">
+                  Request Recruitment Agreement
+                </button>
+              </form>
+            </div>
+          </section>
+        )}
+
+        {/* 6. BLOGS & GUIDES */}
+        {activePage === 'blogs' && (
+          <section className="max-w-5xl mx-auto px-4 py-12">
+            {selectedBlog ? (
+              <div className="bg-white rounded-3xl p-8 border border-slate-200 space-y-4">
+                <button onClick={() => setSelectedBlog(null)} className="text-sm font-semibold text-blue-700 hover:underline">
+                  ← Back to All Guides
+                </button>
+                <span className="inline-block px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold">
+                  {selectedBlog.category}
+                </span>
+                <h1 className="text-3xl font-bold text-slate-900">{selectedBlog.title}</h1>
+                <p className="text-xs text-slate-400">{selectedBlog.date} • {selectedBlog.readTime}</p>
+                <p className="text-slate-700 leading-relaxed pt-4 border-t border-slate-100 whitespace-pre-line">
+                  {selectedBlog.content}
+                </p>
+              </div>
+            ) : (
+              <div>
+                <h1 className="text-3xl font-bold text-slate-900 mb-2">Onshore Student Guides & Visa Updates</h1>
+                <p className="text-slate-600 mb-8">Latest compliance rules for DLI transfers, SEVIS releases, and Subclass 500 extensions.</p>
+                <div className="grid md:grid-cols-3 gap-6">
+                  {blogs.map((blog) => (
+                    <div key={blog.id} className="bg-white rounded-2xl p-6 border border-slate-200 flex flex-col justify-between">
+                      <div>
+                        <span className="text-xs font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full">
+                          {blog.category}
+                        </span>
+                        <h3 className="text-lg font-bold text-slate-900 mt-3">{blog.title}</h3>
+                        <p className="text-sm text-slate-600 mt-2">{blog.excerpt}</p>
+                      </div>
+                      <button
+                        onClick={() => setSelectedBlog(blog)}
+                        className="mt-5 text-sm font-semibold text-blue-700 hover:underline flex items-center gap-1"
+                      >
+                        Read Full Guide <ArrowRight className="w-4 h-4" />
+                      </button>
                     </div>
                   ))}
                 </div>
-
-                <div className="bg-slate-900 text-white p-5 rounded-2xl mt-6">
-                  <div className="text-xs text-indigo-300 font-semibold uppercase">Direct Institutional Partnerships Desk</div>
-                  <div className="text-lg font-bold mt-1">{CONTACT_EMAIL}</div>
-                  <p className="text-xs text-slate-400 mt-1">Reach out directly or submit the partnership onboarding form to initiate an agreement.</p>
-                </div>
               </div>
-
-              <div className="lg:col-span-6 bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
-                <h2 className="text-xl font-bold text-slate-900 mb-1">Become a Partner Education Provider</h2>
-                <p className="text-xs text-slate-500 mb-6">Submit your institution details to connect directly with our recruitment directors.</p>
-
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    const fd = new FormData(e.target);
-                    triggerMailForward(
-                      `University Partnership Inquiry - ${fd.get('institution')}`,
-                      `Institution Name: ${fd.get('institution')}\nCountry: ${fd.get('country')}\nDLI / CRICOS / SEVIS Code: ${fd.get('code')}\nContact Person: ${fd.get('contactName')}\nOfficial Email: ${fd.get('email')}\nCommission / Agreement Details: ${fd.get('notes')}`,
-                      'Partnership Proposal Prepared'
-                    );
-                    e.target.reset();
-                  }}
-                  className="space-y-4"
-                >
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">University / College Name</label>
-                    <input required name="institution" type="text" placeholder="e.g. Pacific Coast University" className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">Country</label>
-                      <select name="country" className="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm">
-                        <option value="Canada">Canada</option>
-                        <option value="USA">USA</option>
-                        <option value="Australia">Australia</option>
-                        <option value="Other">Other</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">DLI / CRICOS / SEVIS ID</label>
-                      <input required name="code" type="text" placeholder="e.g. O1939155672" className="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm" />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">Representative Name</label>
-                      <input required name="contactName" type="text" placeholder="Full Name & Title" className="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm" />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">Official Institutional Email</label>
-                      <input required name="email" type="email" placeholder="partnerships@university.edu" className="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm" />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">Programs & Commission Structure Notes</label>
-                    <textarea required name="notes" rows="3" placeholder="Tell us about your available onshore intakes and agency agreement process..." className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm"></textarea>
-                  </div>
-                  <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl transition">
-                    Submit Direct Partnership Request
-                  </button>
-                </form>
-              </div>
-            </div>
-          </div>
+            )}
+          </section>
         )}
 
-        {activePage === 'blogs' && (
-          <div className="max-w-7xl mx-auto py-12 px-4">
-            <div className="flex flex-wrap justify-between items-end gap-4 mb-10">
-              <div>
-                <h1 className="text-3xl font-bold text-slate-900">Onshore Admissions Blog & Visa Insights</h1>
-                <p className="text-slate-600 mt-1">Publish new articles anytime to grow organic student traffic across USA, Canada & Australia.</p>
-              </div>
-            </div>
-
-            <div className="grid lg:grid-cols-12 gap-8">
-              <div className="lg:col-span-8 space-y-6">
-                {blogs.map(blog => (
-                  <article key={blog.id} className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-sm">
-                    <div className="flex items-center gap-3 text-xs text-slate-500 mb-3">
-                      <span className="bg-indigo-50 text-indigo-700 font-bold px-3 py-1 rounded-full">{blog.category}</span>
-                      <span>{blog.date}</span>
-                      <span>• {blog.readTime}</span>
-                    </div>
-                    <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-3">{blog.title}</h2>
-                    <p className="text-sm font-medium text-slate-700 mb-3">{blog.summary}</p>
-                    <p className="text-sm text-slate-600 leading-relaxed">{blog.content}</p>
-                  </article>
-                ))}
-              </div>
-
-              <div className="lg:col-span-4 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm h-fit sticky top-24">
-                <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2 mb-1">
-                  <Plus className="w-5 h-5 text-indigo-600" /> Add New Blog Post
-                </h3>
-                <p className="text-xs text-slate-500 mb-4">Publish fresh SEO guides regularly to attract onshore students.</p>
-
-                <form onSubmit={handleAddBlog} className="space-y-3.5">
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">Article Title</label>
-                    <input required name="title" type="text" placeholder="e.g. Top 5 Affordable Universities in Canada for Fall 2027" className="w-full border border-slate-300 rounded-xl px-3.5 py-2 text-sm" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">Category</label>
-                    <select name="category" className="w-full border border-slate-300 rounded-xl px-3.5 py-2 text-sm">
-                      <option value="Canada Study Extension">Canada Study Extension</option>
-                      <option value="USA Transfers">USA Transfers</option>
-                      <option value="Australia Visa">Australia Visa</option>
-                      <option value="Scholarships & News">Scholarships & News</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">Short Summary</label>
-                    <input required name="summary" type="text" placeholder="1-2 sentence overview for search engines..." className="w-full border border-slate-300 rounded-xl px-3.5 py-2 text-sm" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">Full Article Content</label>
-                    <textarea required name="content" rows="4" placeholder="Write your helpful guide here..." className="w-full border border-slate-300 rounded-xl px-3.5 py-2 text-sm"></textarea>
-                  </div>
-                  <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-xl text-sm transition">
-                    Publish Blog Post Now
-                  </button>
-                </form>
-              </div>
-            </div>
-          </div>
-        )}
-
+        {/* 7. CAREERS */}
         {activePage === 'careers' && (
-          <div className="max-w-5xl mx-auto py-12 px-4">
-            <div className="text-center max-w-2xl mx-auto mb-12">
-              <span className="inline-flex items-center gap-1.5 bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-xs font-bold mb-3">
-                <Briefcase className="w-3.5 h-3.5" /> Join Our Global Admissions Team
-              </span>
+          <section className="max-w-4xl mx-auto px-4 py-12 space-y-6">
+            <div className="bg-white rounded-3xl p-8 border border-slate-200">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold mb-3">
+                <Briefcase className="w-4 h-4" /> Join Our Global Admissions Team
+              </div>
               <h1 className="text-3xl font-bold text-slate-900">Careers at Onshore Admissions</h1>
               <p className="text-slate-600 mt-2">
-                Help international students across the USA, Canada, and Australia achieve their academic goals. Send your resume directly to <strong>{CONTACT_EMAIL}</strong>.
+                We are hiring remote and regional onshore student counselors for Canada, USA, and Australia markets.
               </p>
-            </div>
-
-            <div className="space-y-4">
-              {INITIAL_JOBS.map(job => (
-                <div key={job.id} className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-wrap items-center justify-between gap-4">
-                  <div className="max-w-2xl">
-                    <div className="flex items-center gap-2 text-xs font-semibold text-indigo-600 mb-1">
-                      <span>{job.department}</span> • <span>{job.location}</span> • <span>{job.type}</span>
+              <div className="mt-6 space-y-4">
+                {[
+                  { role: 'Senior Onshore Admissions Counselor (Canada & USA)', loc: 'Remote / Hybrid', type: 'Full-Time' },
+                  { role: 'University Relations & Compliance Coordinator (Australia)', loc: 'Remote', type: 'Full-Time' }
+                ].map((job, idx) => (
+                  <div key={idx} className="p-5 rounded-2xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                      <h3 className="font-bold text-slate-900">{job.role}</h3>
+                      <p className="text-xs text-slate-500 mt-1">{job.loc} • {job.type}</p>
                     </div>
-                    <h3 className="text-lg font-bold text-slate-900">{job.title}</h3>
-                    <p className="text-sm text-slate-600 mt-1">{job.description}</p>
+                    <button
+                      onClick={() => showToast('Application Noted', 'Send your CV directly to info@theonshoreadmissions.com.')}
+                      className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold"
+                    >
+                      Apply via Email
+                    </button>
                   </div>
-                  <button
-                    onClick={() =>
-                      triggerMailForward(
-                        `Job Application: ${job.title}`,
-                        `Hello Hiring Team at Onshore Admissions,\n\nI would like to apply for the position of ${job.title} (${job.location}).\n\nPlease find my resume attached.\n\nBest regards,`,
-                        'Career Application Opened'
-                      )
-                    }
-                    className="bg-slate-900 hover:bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition shrink-0"
-                  >
-                    Apply Now
-                  </button>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          </section>
         )}
 
+        {/* 8. CONTACT */}
         {activePage === 'contact' && (
-          <div className="max-w-4xl mx-auto py-12 px-4">
-            <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm grid md:grid-cols-12 gap-8">
-              <div className="md:col-span-5 space-y-4 border-b md:border-b-0 md:border-r border-slate-200 pb-6 md:pb-0 md:pr-6">
-                <h1 className="text-2xl font-bold text-slate-900">Contact Onshore Admissions</h1>
-                <p className="text-sm text-slate-600">
-                  Have questions about college transfers, study permit extensions, or university partnerships? Email our team anytime.
+          <section className="max-w-4xl mx-auto px-4 py-12">
+            <div className="bg-white rounded-3xl p-8 border border-slate-200 grid md:grid-cols-2 gap-8">
+              <div className="space-y-4">
+                <h1 className="text-3xl font-bold text-slate-900">Contact Onshore Admissions</h1>
+                <p className="text-sm text-slate-600 leading-relaxed">
+                  Have questions about changing your college, extending your study permit, or checking credit transfer eligibility? Reach out directly.
                 </p>
-                <div className="pt-2 space-y-3 text-sm">
-                  <div className="flex items-center gap-3 text-slate-800 font-medium">
-                    <Mail className="w-5 h-5 text-indigo-600" />
-                    <a href={`mailto:${CONTACT_EMAIL}`} className="hover:underline">{CONTACT_EMAIL}</a>
-                  </div>
-                  <div className="flex items-center gap-3 text-slate-800 font-medium">
-                    <Globe className="w-5 h-5 text-indigo-600" />
-                    <span>Serving USA • Canada • Australia</span>
-                  </div>
+                <div className="space-y-3 pt-2 text-sm">
+                  <p className="flex items-center gap-2.5 font-medium text-slate-800">
+                    <Mail className="w-4 h-4 text-blue-700" /> info@theonshoreadmissions.com
+                  </p>
+                  <p className="flex items-center gap-2.5 font-medium text-slate-800">
+                    <Globe className="w-4 h-4 text-blue-700" /> www.theonshoreadmissions.com
+                  </p>
                 </div>
               </div>
-
-              <div className="md:col-span-7">
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    const fd = new FormData(e.target);
-                    triggerMailForward(
-                      `Website Inquiry from ${fd.get('name')}`,
-                      `Name: ${fd.get('name')}\nEmail: ${fd.get('email')}\nCountry: ${fd.get('country')}\nMessage:\n${fd.get('message')}`,
-                      'Message Ready to Send'
-                    );
-                    e.target.reset();
-                  }}
-                  className="space-y-4"
-                >
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">Your Name</label>
-                    <input required name="name" type="text" placeholder="Full Name" className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">Email Address</label>
-                      <input required name="email" type="email" placeholder="you@example.com" className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm" />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">Current Location</label>
-                      <select name="country" className="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm">
-                        <option value="Canada">Canada</option>
-                        <option value="USA">USA</option>
-                        <option value="Australia">Australia</option>
-                        <option value="Other">Other</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">How Can We Help?</label>
-                    <textarea required name="message" rows="4" placeholder="Write your query here..." className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm"></textarea>
-                  </div>
-                  <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl transition">
-                    Send Message to {CONTACT_EMAIL}
-                  </button>
-                </form>
-              </div>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  showToast('Message Sent!', 'We will reply to your inquiry within 24 hours.');
+                  e.target.reset();
+                }}
+                className="space-y-3"
+              >
+                <input required placeholder="Your Full Name" className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm" />
+                <input type="email" required placeholder="Your Email Address" className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm" />
+                <select className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm">
+                  <option>Canada Study Transfer / Extension</option>
+                  <option>USA SEVIS I-20 Transfer</option>
+                  <option>Australia CoE / Course Change</option>
+                </select>
+                <textarea rows={3} required placeholder="How can we help you?" className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm" />
+                <button type="submit" className="w-full py-3 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-semibold text-sm flex items-center justify-center gap-2">
+                  <Send className="w-4 h-4" /> Send Inquiry
+                </button>
+              </form>
             </div>
-          </div>
+          </section>
         )}
       </main>
 
-      <footer className="bg-slate-950 text-slate-400 py-12 px-4 mt-16">
-        <div className="max-w-7xl mx-auto grid sm:grid-cols-2 lg:grid-cols-4 gap-8 pb-8 border-b border-slate-800">
-          <div>
-            <div className="flex items-center gap-2 text-white font-bold text-lg mb-3">
-              <GraduationCap className="w-6 h-6 text-indigo-400" />
-              <span>OnshoreAdmissions</span>
-            </div>
-            <p className="text-xs leading-relaxed">
-              Helping international students in the USA, Canada, and Australia transfer colleges, extend study visas, and secure university offers with zero counseling fees.
-            </p>
-          </div>
-          <div>
-            <h4 className="text-white font-semibold text-sm mb-3">Student Services</h4>
-            <ul className="space-y-2 text-xs">
-              <li><button onClick={() => navigate('universities')} className="hover:text-white">University & College Transfers</button></li>
-              <li><button onClick={() => navigate('portal')} className="hover:text-white">Student Application Portal</button></li>
-              <li><button onClick={() => navigate('portal')} className="hover:text-white">Track Offer Letter Status</button></li>
-              <li><button onClick={() => navigate('blogs')} className="hover:text-white">Study Extension Guides</button></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-white font-semibold text-sm mb-3">Company & Partners</h4>
-            <ul className="space-y-2 text-xs">
-              <li><button onClick={() => navigate('providers')} className="hover:text-white">Education Providers (B2B)</button></li>
-              <li><button onClick={() => navigate('careers')} className="hover:text-white">Careers</button></li>
-              <li><button onClick={() => navigate('contact')} className="hover:text-white">Contact Support</button></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-white font-semibold text-sm mb-3">Official Contact</h4>
-            <p className="text-xs mb-2">Admissions, Partnerships & Post-Offer Desk:</p>
-            <a href={`mailto:${CONTACT_EMAIL}`} className="text-indigo-400 font-semibold text-xs hover:underline flex items-center gap-1.5">
-              <Mail className="w-4 h-4" /> {CONTACT_EMAIL}
-            </a>
-          </div>
-        </div>
-        <div className="max-w-7xl mx-auto pt-6 text-xs flex flex-wrap justify-between items-center gap-2">
-          <span>© {new Date().getFullYear()} Onshore Admissions. All rights reserved.</span>
-          <span>USA • Canada • Australia</span>
+      {/* Footer */}
+      <footer className="bg-slate-950 text-slate-400 py-10 px-4 border-t border-slate-900">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+          <p className="text-slate-300 font-semibold">© 2026 Onshore Admissions. All rights reserved.</p>
+          <p>Official Support: info@theonshoreadmissions.com</p>
         </div>
       </footer>
     </div>
