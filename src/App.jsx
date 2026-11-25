@@ -8,10 +8,9 @@ import {
 } from 'lucide-react';
 
 // --- SUPABASE CONFIGURATION ---
-const SUPABASE_URL = const SUPABASE_KEY = 'sb_publishable_RNnAPbFgYlNJ8rv_V4KpCg_sFXf7eHq';
+const SUPABASE_URL = 'https://girvhzxxzmcggrbwqiaw.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_RNnAPbFgYlNJ8rv_V4KpCg_sFXf7eHq';
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-
 // --- ADMIN PASSWORD (Aap ise kabhi bhi badal sakte hain) ---
 const ADMIN_PASSCODE = 'Admin@2026';
 
