@@ -12,7 +12,7 @@ const SUPABASE_URL = 'https://girvhzxxzmcggrbwqiaw.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdscnZoenh4em1jZ3FuYndxbGF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU1ODk5NjMsImV4cCI6MjExMTE2NTk2M30.Ilr1LRqLh7embIeeSc9Ag9vj014KaVp8eZqzX4WubGs';
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const ADMIN_PASSCODE = 'asli_Naya_Strong_Password';
+const ADMIN_PASSCODE = 'Ashu1122@@';
 const ADMIN_SESSION_KEY = 'onshore_admin_unlocked_v1';
 const ACTIVE_PAGE_KEY = 'onshore_active_page_v1';
 const SESSION_STORAGE_KEY = 'onshore_student_session_v1';
@@ -56,10 +56,22 @@ const STATUS_STEPS = [
 ];
 
 export default function App() {
-  const [activePage, setActivePage] = useState('home');
+ const [activePage, setActivePage] = useState(() => {
+  try {
+    return localStorage.getItem(ACTIVE_PAGE_KEY) || 'home';
+  } catch (_) {
+    return 'home';
+  }
+});
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const [currentUser, setCurrentUser] = useState(null);
+ const [isAdminUnlocked, setIsAdminUnlocked] = useState(() => {
+  try {
+    return localStorage.getItem(ADMIN_SESSION_KEY) === 'true';
+  } catch (_) {
+    return false;
+  }
+});
   const [authMode, setAuthMode] = useState('login');
   const [authForm, setAuthForm] = useState({ name: '', email: '', password: '', country: 'Canada' });
   const [authLoading, setAuthLoading] = useState(false);
@@ -151,7 +163,10 @@ export default function App() {
   ];
 
   const navigate = (page) => {
-    setActivePage(page);
+  setActivePage(page);
+    try {
+      localStorage.setItem(ACTIVE_PAGE_KEY, page);
+    } catch (_) {}
     setMobileMenuOpen(false);
     setSelectedBlog(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
