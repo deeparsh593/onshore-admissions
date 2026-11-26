@@ -105,7 +105,7 @@ export default function App() {
   const [submittingApp, setSubmittingApp] = useState(false);
 
   const [newBlog, setNewBlog] = useState({ title: '', category: 'Canada Onshore', excerpt: '', content: '' });
-
+const [currentUser, setCurrentUser] = useState(null);
   const [toast, setToast] = useState(null);
   const showToast = (title, message) => {
     setToast({ title, message });
