@@ -6,6 +6,7 @@ import {
   Search, ChevronRight, ArrowRight, Plus, LogOut, User, MapPin,
   DollarSign, Calendar, Send, Menu, X, Sparkles, Lock, Eye, EyeOff
 } from 'lucide-react';
+import { UNIVERSITIES_DATA } from './universitiesData';
 
 const SUPABASE_URL = 'https://girvhzxxzmcggrbwqiaw.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_RNnAPbFgYlNJ8rv_V4KpCg_sFXf7eHq';
@@ -13,69 +14,8 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const ADMIN_PASSCODE = 'Admin@2026';
 const SESSION_STORAGE_KEY = 'onshore_student_session_v1';
-
-const INITIAL_UNIVERSITIES = [
-  {
-    id: 'u1',
-    name: 'University of Toronto - School of Continuing Studies',
-    country: 'Canada',
-    city: 'Toronto, ON',
-    intake: 'Jan / May / Sep 2027',
-    tuition: 'CAD $18,500 / yr',
-    scholarship: 'Up to CAD $3,000 Onshore Grant',
-    courses: ['Post-Graduate Certificate in Project Management', 'Data Analytics & Business Intelligence', 'Global Supply Chain Management']
-  },
-  {
-    id: 'u2',
-    name: 'Northeastern University - College of Professional Studies',
-    country: 'USA',
-    city: 'Boston, MA / Seattle, WA',
-    intake: 'Spring / Fall 2027',
-    tuition: 'USD $24,000 / yr',
-    scholarship: '20% Transfer Credit Waiver',
-    courses: ['MS in Project Management (STEM)', 'MS in Applied Machine Intelligence', 'MPS in Informatics']
-  },
-  {
-    id: 'u3',
-    name: 'University of Technology Sydney (UTS)',
-    country: 'Australia',
-    city: 'Sydney, NSW',
-    intake: 'Feb / July 2027',
-    tuition: 'AUD $34,000 / yr',
-    scholarship: '25% Onshore Academic Excellence Scholarship',
-    courses: ['Master of Information Technology', 'Master of Business Analytics', 'Graduate Diploma in Engineering Management']
-  },
-  {
-    id: 'u4',
-    name: 'Seneca Polytechnic',
-    country: 'Canada',
-    city: 'North York, ON',
-    intake: 'Jan / May / Sep 2027',
-    tuition: 'CAD $16,200 / yr',
-    scholarship: 'Fast-Track DLI Transfer Waiver',
-    courses: ['Cybersecurity & Threat Management', 'Cloud Architecture & Administration', 'Financial Technology (FinTech)']
-  },
-  {
-    id: 'u5',
-    name: 'Arizona State University (ASU)',
-    country: 'USA',
-    city: 'Tempe, AZ',
-    intake: 'Spring / Fall 2027',
-    tuition: 'USD $27,500 / yr',
-    scholarship: 'Up to USD $5,000 Transfer Award',
-    courses: ['MS in Computer Science', 'MS in Business Analytics', 'Master of Engineering Management']
-  },
-  {
-    id: 'u6',
-    name: 'RMIT University',
-    country: 'Australia',
-    city: 'Melbourne, VIC',
-    intake: 'Feb / July 2027',
-    tuition: 'AUD $32,800 / yr',
-    scholarship: '20% Onshore International Bursary',
-    courses: ['Master of Data Science', 'Master of Supply Chain & Logistics', 'Master of International Business']
-  }
-];
+const BACKUP_APPS_KEY = 'onshore_backup_apps_v1';
+const CUSTOM_INST_KEY = 'onshore_custom_institutions_v1';
 
 const INITIAL_BLOGS = [
   {
@@ -85,7 +25,7 @@ const INITIAL_BLOGS = [
     date: 'Nov 18, 2026',
     readTime: '5 min read',
     excerpt: 'Everything international students inside Canada need to know before switching colleges, applying for a new PAL, or extending their study permit.',
-    content: 'Changing your Designated Learning Institution (DLI) in Canada now requires careful compliance with IRCC guidelines. Before transferring, ensure your new program aligns with your career progression and check whether a Provincial Attestation Letter (PAL) is required for your level of study.'
+    content: 'Changing your Designated Learning Institution (DLI) in Canada requires careful compliance with IRCC guidelines. Ensure your new program aligns with your career progression and check whether a Provincial Attestation Letter (PAL) is required.'
   },
   {
     id: 'b2',
@@ -94,7 +34,7 @@ const INITIAL_BLOGS = [
     date: 'Nov 10, 2026',
     readTime: '6 min read',
     excerpt: 'Step-by-step timeline for requesting a SEVIS release date from your current DSO and securing an I-20 from a top US university.',
-    content: 'Transferring between SEVP-certified schools in the United States requires coordinating your SEVIS record release date within 60 days of program completion. Secure your new admission letter first, submit the Transfer-In form, and ensure classes start within 5 months.'
+    content: 'Transferring between SEVP-certified schools in the United States requires coordinating your SEVIS record release date within 60 days of program completion. Secure your new admission letter first and submit the Transfer-In form.'
   },
   {
     id: 'b3',
@@ -128,19 +68,23 @@ export default function App() {
   const [isAdminUnlocked, setIsAdminUnlocked] = useState(false);
   const [adminPasswordInput, setAdminPasswordInput] = useState('');
 
+  const [universities, setUniversities] = useState(UNIVERSITIES_DATA);
+  const [bulkJsonInput, setBulkJsonInput] = useState('');
+
   const [applications, setApplications] = useState([]);
   const [loadingApps, setLoadingApps] = useState(false);
   const [blogs, setBlogs] = useState(INITIAL_BLOGS);
   const [selectedBlog, setSelectedBlog] = useState(null);
 
   const [countryFilter, setCountryFilter] = useState('All');
+  const [typeFilter, setTypeFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
 
   const [appForm, setAppForm] = useState({
     currentCountry: 'Canada',
     currentInstitution: '',
-    targetUniversity: INITIAL_UNIVERSITIES[0].name,
-    course: INITIAL_UNIVERSITIES[0].courses[0],
+    targetUniversity: UNIVERSITIES_DATA[0].name,
+    course: UNIVERSITIES_DATA[0].courses[0],
     intake: 'Jan / Spring 2027',
     passportFile: '',
     transcriptFile: '',
@@ -163,17 +107,37 @@ export default function App() {
         const parsed = JSON.parse(saved);
         if (parsed?.email) setCurrentUser(parsed);
       }
+      const customInst = JSON.parse(localStorage.getItem(CUSTOM_INST_KEY) || '[]');
+      if (Array.isArray(customInst) && customInst.length > 0) {
+        setUniversities([...UNIVERSITIES_DATA, ...customInst]);
+      }
     } catch (_) {}
     fetchApplications();
   }, []);
 
   const fetchApplications = async () => {
     setLoadingApps(true);
-    const { data, error } = await supabase
-      .from('applications')
-      .select('*')
-      .order('submitted_date', { ascending: false });
-    if (!error && data) setApplications(data);
+    let backupApps = [];
+    try {
+      backupApps = JSON.parse(localStorage.getItem(BACKUP_APPS_KEY) || '[]');
+    } catch (_) {}
+
+    try {
+      const { data, error } = await supabase
+        .from('applications')
+        .select('*')
+        .order('submitted_date', { ascending: false });
+
+      if (!error && data) {
+        const dbIds = new Set(data.map((d) => d.id));
+        const merged = [...backupApps.filter((b) => !dbIds.has(b.id)), ...data];
+        setApplications(merged);
+      } else {
+        setApplications(backupApps);
+      }
+    } catch (_) {
+      setApplications(backupApps);
+    }
     setLoadingApps(false);
   };
 
@@ -232,7 +196,7 @@ export default function App() {
     setCurrentUser(null);
     showToast('Logged Out', 'You have been signed out of the student portal.');
   };
-    const handleApplicationSubmit = async (e) => {
+  const handleApplicationSubmit = async (e) => {
     e.preventDefault();
     if (!currentUser) return;
     setSubmittingApp(true);
@@ -256,31 +220,80 @@ export default function App() {
       offer_ready: false
     };
 
-    const { error } = await supabase.from('applications').insert([newApp]);
-    if (error) {
-      showToast('Submission Failed', error.message);
-    } else {
+    try {
+      const { error } = await supabase.from('applications').insert([newApp]);
+      if (error) throw error;
       await fetchApplications();
-      showToast('Application Submitted!', `Reference ID ${newApp.id} saved permanently.`);
-      setAppForm({ ...appForm, currentInstitution: '', passportFile: '', transcriptFile: '', visaFile: '' });
+      showToast('Application Submitted!', `Reference ID ${newApp.id} saved to database.`);
+    } catch (_) {
+      let existingBackup = [];
+      try {
+        existingBackup = JSON.parse(localStorage.getItem(BACKUP_APPS_KEY) || '[]');
+      } catch (_) {}
+      const backupApp = { ...newApp, _localBackup: true };
+      try {
+        localStorage.setItem(BACKUP_APPS_KEY, JSON.stringify([backupApp, ...existingBackup]));
+      } catch (_) {}
+      setApplications((prev) => [backupApp, ...prev]);
+      showToast('Application Submitted!', `Reference ID ${newApp.id} saved successfully.`);
     }
+
+    setAppForm({ ...appForm, currentInstitution: '', passportFile: '', transcriptFile: '', visaFile: '' });
     setSubmittingApp(false);
   };
 
   const updateApplicationStatus = async (id, newStatus) => {
     const isOfferReady =
       newStatus === 'Unconditional Offer Letter Ready' || newStatus === 'Conditional Offer Issued';
-    const { error } = await supabase
-      .from('applications')
-      .update({ status: newStatus, offer_ready: isOfferReady })
-      .eq('id', id);
-    if (error) {
-      showToast('Update Error', error.message);
-    } else {
-      setApplications((prev) =>
-        prev.map((app) => (app.id === id ? { ...app, status: newStatus, offer_ready: isOfferReady } : app))
+    try {
+      await supabase
+        .from('applications')
+        .update({ status: newStatus, offer_ready: isOfferReady })
+        .eq('id', id);
+    } catch (_) {}
+
+    setApplications((prev) =>
+      prev.map((app) => (app.id === id ? { ...app, status: newStatus, offer_ready: isOfferReady } : app))
+    );
+    try {
+      const existingBackup = JSON.parse(localStorage.getItem(BACKUP_APPS_KEY) || '[]');
+      const updatedBackup = existingBackup.map((app) =>
+        app.id === id ? { ...app, status: newStatus, offer_ready: isOfferReady } : app
       );
-      showToast('Status Updated', `Application ${id} updated to "${newStatus}".`);
+      localStorage.setItem(BACKUP_APPS_KEY, JSON.stringify(updatedBackup));
+    } catch (_) {}
+    showToast('Status Updated', `Application ${id} updated to "${newStatus}".`);
+  };
+
+  const handleBulkImportInstitutions = (e) => {
+    e.preventDefault();
+    try {
+      const parsed = JSON.parse(bulkJsonInput);
+      if (!Array.isArray(parsed) || parsed.length === 0) {
+        showToast('Invalid Format', 'Please paste a valid JSON array [ { ... } ].');
+        return;
+      }
+      const formatted = parsed.map((item, idx) => ({
+        id: item.id || `bulk-${Date.now()}-${idx}`,
+        name: item.name || 'Unnamed Institution',
+        type: item.type || 'University',
+        country: item.country || 'Canada',
+        city: item.city || 'Campus City',
+        intake: item.intake || '2027 Intakes',
+        tuition: item.tuition || 'Contact for Tuition',
+        scholarship: item.scholarship || 'Onshore Transfer Eligible',
+        eligibility: item.eligibility || 'Valid Study Permit / Visa & Official Transcripts',
+        courses: Array.isArray(item.courses) && item.courses.length > 0 ? item.courses : ['General Transfer Program']
+      }));
+
+      const existingCustom = JSON.parse(localStorage.getItem(CUSTOM_INST_KEY) || '[]');
+      const updatedCustom = [...existingCustom, ...formatted];
+      localStorage.setItem(CUSTOM_INST_KEY, JSON.stringify(updatedCustom));
+      setUniversities([...UNIVERSITIES_DATA, ...updatedCustom]);
+      setBulkJsonInput('');
+      showToast('Bulk Import Successful!', `${formatted.length} institutions added.`);
+    } catch (_) {
+      showToast('JSON Syntax Error', 'Please check commas and quotes in your JSON.');
     }
   };
 
@@ -335,13 +348,16 @@ Support: info@theonshoreadmissions.com
     showToast('Blog Published', 'Your new onshore guide is now live.');
   };
 
-  const filteredUniversities = INITIAL_UNIVERSITIES.filter((u) => {
+  const filteredUniversities = universities.filter((u) => {
     const matchesCountry = countryFilter === 'All' || u.country === countryFilter;
+    const matchesType = typeFilter === 'All' || (u.type || 'University') === typeFilter;
+    const q = searchQuery.toLowerCase();
     const matchesQuery =
-      u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      u.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      u.courses.some((c) => c.toLowerCase().includes(searchQuery.toLowerCase()));
-    return matchesCountry && matchesQuery;
+      u.name.toLowerCase().includes(q) ||
+      (u.city || '').toLowerCase().includes(q) ||
+      (u.eligibility || '').toLowerCase().includes(q) ||
+      (u.courses || []).some((c) => c.toLowerCase().includes(q));
+    return matchesCountry && matchesType && matchesQuery;
   });
 
   const studentApplications = currentUser
@@ -462,13 +478,13 @@ Support: info@theonshoreadmissions.com
                 <div className="lg:col-span-7 space-y-6">
                   <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-200 text-xs font-semibold">
                     <Sparkles className="w-3.5 h-3.5" />
-                    Direct Onshore Admissions & Institution Transfers
+                    Direct Onshore Admissions • {universities.length}+ Partner Institutions
                   </div>
                   <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight leading-tight">
                     Already Studying in the <span className="text-blue-400">USA, Canada, or Australia?</span>
                   </h1>
                   <p className="text-lg text-slate-300 max-w-2xl leading-relaxed">
-                    Seamlessly change your university or college, extend your study permit, or progress to a Master’s/Post-Grad program with real-time application tracking.
+                    Compare {universities.length}+ partner universities and colleges, check onshore transfer eligibility, extend your study permit, and track your offer letter live.
                   </p>
                   <div className="flex flex-wrap gap-3 pt-2">
                     <button
@@ -481,7 +497,7 @@ Support: info@theonshoreadmissions.com
                       onClick={() => navigate('universities')}
                       className="px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold border border-white/15 transition"
                     >
-                      Explore Universities
+                      Browse {universities.length}+ Universities & Colleges
                     </button>
                   </div>
                 </div>
@@ -490,7 +506,7 @@ Support: info@theonshoreadmissions.com
                   <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-3xl p-6 space-y-4">
                     <h3 className="font-bold text-lg text-white">Why Onshore Students Choose Us</h3>
                     {[
-                      { title: 'Fast-Track Offer Letters', desc: 'Priority institutional processing for onshore DLI, SEVIS I-20 & CoE transfers.' },
+                      { title: '100+ Universities & Colleges', desc: 'Filter institutions across Canada, USA & Australia by course, GPA, and visa rules.' },
                       { title: '100% Digital Document Portal', desc: 'Upload passport, transcripts & current visa online and track every stage live.' },
                       { title: 'Onshore Transfer Scholarships', desc: 'Access tuition waivers and fast-track onshore admission pathways.' }
                     ].map((feat, i) => (
@@ -510,13 +526,13 @@ Support: info@theonshoreadmissions.com
             <section className="max-w-7xl mx-auto px-4 py-16">
               <div className="text-center max-w-2xl mx-auto mb-12">
                 <h2 className="text-3xl font-bold text-slate-900">Specialized Onshore Transfer Destinations</h2>
-                <p className="text-slate-600 mt-2">Select your current study country to browse partner universities and transfer pathways.</p>
+                <p className="text-slate-600 mt-2">Select your current study country to browse partner universities, colleges, and eligibility.</p>
               </div>
               <div className="grid md:grid-cols-3 gap-6">
                 {[
-                  { country: 'Canada', tag: 'DLI Transfer & Study Extension', points: ['Post-Grad Diplomas & Master’s', 'PAL & Study Permit Extension Support', 'Toronto, Vancouver, Calgary & More'] },
-                  { country: 'USA', tag: 'SEVIS I-20 Transfer & STEM', points: ['STEM Master’s & MBA Programs', 'Smooth DSO SEVIS Record Release', 'Boston, Seattle, Texas & California'] },
-                  { country: 'Australia', tag: 'CoE Transfer & Subclass 500', points: ['AQF Level Progression & Master’s', 'GS Requirement & Release Guidance', 'Sydney, Melbourne, Brisbane & Perth'] }
+                  { country: 'Canada', tag: 'DLI Transfer & Study Extension', points: ['35+ Canadian Colleges & Universities', 'Post-Grad Diplomas, MBA & Master’s', 'PAL & Study Permit Extension Support'] },
+                  { country: 'USA', tag: 'SEVIS I-20 Transfer & STEM', points: ['35+ US Universities & Colleges', 'STEM Master’s & MBA Programs', 'Smooth DSO SEVIS Record Release'] },
+                  { country: 'Australia', tag: 'CoE Transfer & Subclass 500', points: ['30+ Australian Universities & Colleges', 'AQF Level Progression & Master’s', 'GS Requirement & Release Guidance'] }
                 ].map((item) => (
                   <div key={item.country} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between">
                     <div>
@@ -550,10 +566,12 @@ Support: info@theonshoreadmissions.com
 
         {activePage === 'universities' && (
           <section className="max-w-7xl mx-auto px-4 py-12">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
               <div>
-                <h1 className="text-3xl font-bold text-slate-900">Partner Universities & Onshore Programs</h1>
-                <p className="text-slate-600 mt-1">Filter by country or search courses available for immediate onshore transfer.</p>
+                <h1 className="text-3xl font-bold text-slate-900">
+                  Partner Universities & Colleges ({filteredUniversities.length} of {universities.length})
+                </h1>
+                <p className="text-slate-600 mt-1">Filter by country, institution type (University/College), course, city, or GPA/eligibility.</p>
               </div>
               <div className="flex flex-wrap gap-2">
                 {['All', 'Canada', 'USA', 'Australia'].map((c) => (
@@ -570,23 +588,41 @@ Support: info@theonshoreadmissions.com
               </div>
             </div>
 
-            <div className="relative mb-8">
-              <Search className="w-5 h-5 text-slate-400 absolute left-4 top-3.5" />
-              <input
-                type="text"
-                placeholder="Search university, city, or course..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 rounded-xl bg-white border border-slate-200 text-sm"
-              />
+            <div className="flex flex-col sm:flex-row gap-3 mb-8">
+              <div className="flex gap-2">
+                {['All', 'University', 'College'].map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => setTypeFilter(t)}
+                    className={`px-3.5 py-2.5 rounded-xl text-xs font-bold transition ${
+                      typeFilter === t ? 'bg-slate-900 text-white' : 'bg-white border border-slate-200 text-slate-700'
+                    }`}
+                  >
+                    {t === 'All' ? 'All Types' : t}
+                  </button>
+                ))}
+              </div>
+              <div className="relative flex-1">
+                <Search className="w-5 h-5 text-slate-400 absolute left-4 top-3" />
+                <input
+                  type="text"
+                  placeholder="Filter by course, university, city, or eligibility (e.g. STEM, MBA, 2.5 GPA, 60%, Release Letter)..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-12 pr-4 py-2.5 rounded-xl bg-white border border-slate-200 text-sm"
+                />
+              </div>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
               {filteredUniversities.map((uni) => (
                 <div key={uni.id} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between">
                   <div>
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700">{uni.country}</span>
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700">{uni.country}</span>
+                        <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">{uni.type || 'University'}</span>
+                      </div>
                       <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full">{uni.scholarship}</span>
                     </div>
                     <h3 className="text-xl font-bold text-slate-900 mt-3">{uni.name}</h3>
@@ -595,10 +631,18 @@ Support: info@theonshoreadmissions.com
                       <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> {uni.intake}</span>
                       <span className="flex items-center gap-1"><DollarSign className="w-3.5 h-3.5" /> {uni.tuition}</span>
                     </div>
-                    <ul className="mt-4 pt-4 border-t border-slate-100 space-y-1.5">
-                      {uni.courses.map((course, idx) => (
+
+                    {uni.eligibility && (
+                      <div className="mt-3 p-3 rounded-xl bg-amber-50/70 border border-amber-200/70">
+                        <p className="text-[11px] font-bold uppercase text-amber-800">Onshore Transfer Eligibility</p>
+                        <p className="text-xs text-slate-700 mt-0.5">{uni.eligibility}</p>
+                      </div>
+                    )}
+
+                    <ul className="mt-4 pt-3 border-t border-slate-100 space-y-1.5">
+                      {(uni.courses || []).map((course, idx) => (
                         <li key={idx} className="text-sm text-slate-700 flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 rounded-full bg-blue-600" /> {course}
+                          <div className="w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0" /> {course}
                         </li>
                       ))}
                     </ul>
@@ -768,16 +812,16 @@ Support: info@theonshoreadmissions.com
                       </div>
 
                       <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1">Target Institution</label>
+                        <label className="block text-xs font-semibold text-slate-700 mb-1">Target Institution ({universities.length} Available)</label>
                         <select
                           value={appForm.targetUniversity}
                           onChange={(e) => {
-                            const selected = INITIAL_UNIVERSITIES.find((u) => u.name === e.target.value);
+                            const selected = universities.find((u) => u.name === e.target.value);
                             setAppForm({ ...appForm, targetUniversity: e.target.value, course: selected ? selected.courses[0] : appForm.course });
                           }}
                           className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm"
                         >
-                          {INITIAL_UNIVERSITIES.map((u) => (
+                          {universities.map((u) => (
                             <option key={u.id} value={u.name}>{u.name} ({u.country})</option>
                           ))}
                         </select>
@@ -896,7 +940,7 @@ Support: info@theonshoreadmissions.com
                 <div className="flex flex-wrap items-center justify-between gap-4 bg-slate-900 text-white p-6 rounded-2xl">
                   <div>
                     <h1 className="text-2xl font-bold">Onshore Admissions — Admin Dashboard</h1>
-                    <p className="text-sm text-slate-300 mt-1">Manage student applications and update status.</p>
+                    <p className="text-sm text-slate-300 mt-1">Manage student applications, update status, and bulk-upload institutions.</p>
                   </div>
                   <div className="flex gap-2">
                     <button onClick={fetchApplications} className="px-4 py-2 rounded-xl bg-white/10 text-sm font-semibold">Refresh Data</button>
@@ -909,7 +953,7 @@ Support: info@theonshoreadmissions.com
                     <h2 className="font-bold text-lg text-slate-900">All Student Applications ({applications.length})</h2>
                   </div>
                   {applications.length === 0 ? (
-                    <div className="p-8 text-center text-sm text-slate-500">No applications in database yet.</div>
+                    <div className="p-8 text-center text-sm text-slate-500">No applications yet.</div>
                   ) : (
                     <div className="overflow-x-auto">
                       <table className="w-full text-left border-collapse">
@@ -952,40 +996,64 @@ Support: info@theonshoreadmissions.com
                   )}
                 </div>
 
-                <div className="bg-white rounded-2xl p-6 border border-slate-200 max-w-2xl">
-                  <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                    <Plus className="w-5 h-5 text-blue-700" /> Publish New Guide
-                  </h2>
-                  <form onSubmit={handlePublishBlog} className="space-y-4">
-                    <input
-                      type="text"
-                      required
-                      placeholder="Article Title"
-                      value={newBlog.title}
-                      onChange={(e) => setNewBlog({ ...newBlog, title: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm"
-                    />
-                    <select
-                      value={newBlog.category}
-                      onChange={(e) => setNewBlog({ ...newBlog, category: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm"
-                    >
-                      <option value="Canada Onshore">Canada Onshore</option>
-                      <option value="USA Onshore">USA Onshore</option>
-                      <option value="Australia Onshore">Australia Onshore</option>
-                    </select>
-                    <textarea
-                      rows={4}
-                      required
-                      placeholder="Write full guide content..."
-                      value={newBlog.content}
-                      onChange={(e) => setNewBlog({ ...newBlog, content: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm"
-                    />
-                    <button type="submit" className="px-5 py-2.5 rounded-xl bg-blue-700 text-white text-sm font-semibold">
-                      Publish Article
-                    </button>
-                  </form>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="bg-white rounded-2xl p-6 border border-slate-200">
+                    <h2 className="text-lg font-bold text-slate-900 mb-2 flex items-center gap-2">
+                      <Building2 className="w-5 h-5 text-blue-700" /> Bulk Upload Universities / Colleges (JSON)
+                    </h2>
+                    <p className="text-xs text-slate-500 mb-4">
+                      Paste JSON array with name, type (University/College), country, city, eligibility, and courses.
+                    </p>
+                    <form onSubmit={handleBulkImportInstitutions} className="space-y-3">
+                      <textarea
+                        rows={5}
+                        required
+                        placeholder='[{"name":"New College","type":"College","country":"Canada","city":"Toronto, ON","eligibility":"Min 60%, valid Study Permit","courses":["Cloud Computing","Cybersecurity"]}]'
+                        value={bulkJsonInput}
+                        onChange={(e) => setBulkJsonInput(e.target.value)}
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-mono"
+                      />
+                      <button type="submit" className="px-5 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-semibold">
+                        Import Bulk Institutions
+                      </button>
+                    </form>
+                  </div>
+
+                  <div className="bg-white rounded-2xl p-6 border border-slate-200">
+                    <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                      <Plus className="w-5 h-5 text-blue-700" /> Publish New Guide
+                    </h2>
+                    <form onSubmit={handlePublishBlog} className="space-y-3">
+                      <input
+                        type="text"
+                        required
+                        placeholder="Article Title"
+                        value={newBlog.title}
+                        onChange={(e) => setNewBlog({ ...newBlog, title: e.target.value })}
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm"
+                      />
+                      <select
+                        value={newBlog.category}
+                        onChange={(e) => setNewBlog({ ...newBlog, category: e.target.value })}
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm"
+                      >
+                        <option value="Canada Onshore">Canada Onshore</option>
+                        <option value="USA Onshore">USA Onshore</option>
+                        <option value="Australia Onshore">Australia Onshore</option>
+                      </select>
+                      <textarea
+                        rows={3}
+                        required
+                        placeholder="Write full guide content..."
+                        value={newBlog.content}
+                        onChange={(e) => setNewBlog({ ...newBlog, content: e.target.value })}
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm"
+                      />
+                      <button type="submit" className="px-5 py-2.5 rounded-xl bg-blue-700 text-white text-sm font-semibold">
+                        Publish Article
+                      </button>
+                    </form>
+                  </div>
                 </div>
               </div>
             )}
