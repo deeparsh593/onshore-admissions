@@ -12,12 +12,12 @@ const SUPABASE_URL = 'https://girvhzxxzmcggrbwqiaw.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdscnZoenh4em1jZ3FuYndxbGF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU1ODk5NjMsImV4cCI6MjExMTE2NTk2M30.Ilr1LRqLh7embIeeSc9Ag9vj014KaVp8eZqzX4WubGs';
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const ADMIN_PASSCODE = 'Admin@2026';
+const ADMIN_PASSCODE = 'asli_Naya_Strong_Password';
+const ADMIN_SESSION_KEY = 'onshore_admin_unlocked_v1';
+const ACTIVE_PAGE_KEY = 'onshore_active_page_v1';
 const SESSION_STORAGE_KEY = 'onshore_student_session_v1';
 const BACKUP_APPS_KEY = 'onshore_backup_apps_v1';
 const CUSTOM_INST_KEY = 'onshore_custom_institutions_v1';
-
-const INITIAL_BLOGS = [
   {
     id: 'b1',
     title: 'Canada DLI Change & Study Permit Extension Rules (2026–2027 Guide)',
