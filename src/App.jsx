@@ -77,7 +77,13 @@ export default function App() {
   const [authLoading, setAuthLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const [isAdminUnlocked, setIsAdminUnlocked] = useState(false);
+  const [isAdminUnlocked, setIsAdminUnlocked] = useState(() => {
+  try {
+    return localStorage.getItem(ADMIN_SESSION_KEY) === 'true';
+  } catch (_) {
+    return false;
+  }
+});
   const [adminPasswordInput, setAdminPasswordInput] = useState('');
 
   const [universities, setUniversities] = useState(UNIVERSITIES_DATA);
@@ -339,10 +345,12 @@ Support: info@theonshoreadmissions.com
     e.preventDefault();
     if (adminPasswordInput === ADMIN_PASSCODE) {
       setIsAdminUnlocked(true);
-      setAdminPasswordInput('');
+      try {
+        localStorage.setItem(ADMIN_SESSION_KEY, 'true');
+     
       showToast('Admin Access Granted', 'Welcome to Admin Dashboard.');
     } else {
-      showToast('Incorrect Password', 'Please enter Admin@2026.');
+      showToast('Incorrect Password', 'Access denied.');
     }
   };
 
@@ -940,7 +948,7 @@ Support: info@theonshoreadmissions.com
                   <input
                     type="password"
                     required
-                    placeholder="Enter Admin@2026"
+                    placeholder="Enter Admin Passcode"
                     value={adminPasswordInput}
                     onChange={(e) => setAdminPasswordInput(e.target.value)}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm"
@@ -959,7 +967,7 @@ Support: info@theonshoreadmissions.com
                   </div>
                   <div className="flex gap-2">
                     <button onClick={fetchApplications} className="px-4 py-2 rounded-xl bg-white/10 text-sm font-semibold">Refresh Data</button>
-                    <button onClick={() => setIsAdminUnlocked(false)} className="px-4 py-2 rounded-xl bg-red-600 text-sm font-semibold">Lock Admin</button>
+                  <button onClick={() => { setIsAdminUnlocked(false); try { localStorage.removeItem(ADMIN_SESSION_KEY); } catch (_) {} }} className="px-4 py-2 rounded-xl bg-red-600 text-sm font-semibold">Lock Admin</button>
                   </div>
                 </div>
 
