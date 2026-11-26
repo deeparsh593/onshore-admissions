@@ -350,7 +350,7 @@ Support: info@theonshoreadmissions.com
         localStorage.setItem(ADMIN_SESSION_KEY, 'true');
      } catch (_) {}
       showToast('Admin Access Granted', 'Welcome to Admin Dashboard.');
-    }} else {
+   } else {
       showToast('Incorrect Password', 'Access denied.');
     }
   };
