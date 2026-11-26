@@ -18,7 +18,8 @@ const ACTIVE_PAGE_KEY = 'onshore_active_page_v1';
 const SESSION_STORAGE_KEY = 'onshore_student_session_v1';
 const BACKUP_APPS_KEY = 'onshore_backup_apps_v1';
 const CUSTOM_INST_KEY = 'onshore_custom_institutions_v1';
-  {
+ const INITIAL_BLOGS = [ 
+   {
     id: 'b1',
     title: 'Canada DLI Change & Study Permit Extension Rules (2026–2027 Guide)',
     category: 'Canada Onshore',
