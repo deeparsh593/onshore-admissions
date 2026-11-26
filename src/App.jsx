@@ -78,13 +78,6 @@ export default function App() {
   const [authLoading, setAuthLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const [isAdminUnlocked, setIsAdminUnlocked] = useState(() => {
-  try {
-    return localStorage.getItem(ADMIN_SESSION_KEY) === 'true';
-  } catch (_) {
-    return false;
-  }
-});
   const [adminPasswordInput, setAdminPasswordInput] = useState('');
 
   const [universities, setUniversities] = useState(UNIVERSITIES_DATA);
