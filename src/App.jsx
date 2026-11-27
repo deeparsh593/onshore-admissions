@@ -80,6 +80,13 @@ export default function App() {
 
   const [adminPasswordInput, setAdminPasswordInput] = useState('');
   const [openDocStudentEmail, setOpenDocStudentEmail] = useState(null);
+  const [offerLetters, setOfferLetters] = useState(() => {
+  try {
+    return JSON.parse(localStorage.getItem('onshore_offer_letters_v1') || '{}');
+  } catch (_) {
+    return {};
+  }
+});
 
   const [universities, setUniversities] = useState(UNIVERSITIES_DATA);
   const [bulkJsonInput, setBulkJsonInput] = useState('');
@@ -383,28 +390,38 @@ if (missingMandatory.length > 0) {
     }
   };
 
-  const handleDownloadOfferLetter = (app) => {
-    const letterContent = `
-ONSHORE ADMISSIONS - OFFICIAL OFFER SUMMARY
-Reference ID: ${app.id}
-Student Name: ${app.student_name}
-Student Email: ${app.student_email}
-Target Institution: ${app.target_university}
-Course: ${app.course}
-Intake: ${app.intake}
-Status: ${app.status}
-Support: info@theonshoreadmissions.com
-    `.trim();
-
-    const blob = new Blob([letterContent], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${app.id}_Offer_Letter.txt`;
+ const handleDownloadOfferLetter = (app) => {
+  const uploadedOffer = offerLetters?.[app.id];
+  if (uploadedOffer?.dataUrl) {
+    const link = document.createElement("a");
+    link.href = uploadedOffer.dataUrl;
+    link.download = uploadedOffer.fileName || `${app.id}_Offer_Letter.pdf`;
     link.click();
-    URL.revokeObjectURL(url);
-    showToast('Offer Letter Downloaded', `${app.id}_Offer_Letter.txt saved.`);
+    showToast("Offer Letter Downloaded", `${link.download} saved.`);
+    return;
+  }
+  showToast("Offer Pending", "Offer letter file abhi upload nahi hui hai.");
+};
+  const handleUploadOfferLetter = (appId, file) => {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const payload = {
+      fileName: file.name,
+      dataUrl: reader.result,
+      uploadedAt: new Date().toISOString(),
+    };
+    setOfferLetters((prev) => {
+      const updated = { ...(prev || {}), [appId]: payload };
+      try {
+        localStorage.setItem('onshore_offer_letters_v1', JSON.stringify(updated));
+      } catch (_) {}
+      return updated;
+    });
+    showToast('Offer Uploaded', `${file.name} attached to ${appId}.`);
   };
+  reader.readAsDataURL(file);
+};
 
   const handleAdminUnlock = (e) => {
     e.preventDefault();
@@ -1120,6 +1137,20 @@ Support: info@theonshoreadmissions.com
                                     <option key={st} value={st}>{st}</option>
                                   ))}
                                 </select>
+                                {(app.status === 'Conditional Offer Issued' || app.status === 'Unconditional Offer Letter Ready') && (
+  <div className="mt-2 space-y-1">
+    <label className="block text-[11px] font-semibold text-emerald-700">Upload Offer Letter</label>
+    <input
+      type="file"
+      accept=".pdf,.png,.jpg,.jpeg"
+      onChange={(e) => handleUploadOfferLetter(app.id, e.target.files?.[0])}
+      className="block w-full text-[11px] text-slate-600 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[11px] file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
+    />
+    {offerLetters?.[app.id]?.fileName && (
+      <p className="text-[11px] text-emerald-800 truncate">Uploaded: {offerLetters[app.id].fileName}</p>
+    )}
+  </div>
+)}
                               </td>
                               <td className="py-4 px-4"><button type="button" onClick={() => setOpenDocStudentEmail(openDocStudentEmail === app.student_email ? null : app.student_email)} className="px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold text-xs">Docs</button></td>
                             </tr>
