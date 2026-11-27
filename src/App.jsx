@@ -318,6 +318,7 @@ if (missingMandatory.length > 0) {
       if (error) throw error;
       await fetchApplications();
       showToast('Application Submitted!', `Reference ID ${newApp.id} saved to database.`);
+    }
     catch (err)
       let existingBackup = [];
       try {
