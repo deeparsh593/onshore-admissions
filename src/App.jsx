@@ -79,6 +79,7 @@ export default function App() {
   const [showPassword, setShowPassword] = useState(false);
 
   const [adminPasswordInput, setAdminPasswordInput] = useState('');
+  const [openDocStudentEmail, setOpenDocStudentEmail] = useState(null);
 
   const [universities, setUniversities] = useState(UNIVERSITIES_DATA);
   const [bulkJsonInput, setBulkJsonInput] = useState('');
@@ -1078,58 +1079,7 @@ Support: info@theonshoreadmissions.com
                   <button onClick={() => { setIsAdminUnlocked(false); try { localStorage.removeItem(ADMIN_SESSION_KEY); } catch (_) {} }} className="px-4 py-2 rounded-xl bg-red-600 text-sm font-semibold">Lock Admin</button>
                   </div>
                 </div>
-<div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4">
-  <div className="flex flex-wrap items-center justify-between gap-3">
-    <h2 className="font-bold text-lg text-slate-900">Student Uploaded Documents</h2>
-    <a
-      href={whatsappInquiryUrl}
-      target="_blank"
-      rel="noreferrer"
-      className="px-3.5 py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold"
-    >
-      WhatsApp: +14313036515
-    </a>
-  </div>
 
-  {Object.entries(studentDocs).length === 0 ? (
-    <p className="text-sm text-slate-500">Abhi kisi student ne documents upload nahi kiye hain.</p>
-  ) : (
-    <div className="space-y-4">
-      {Object.entries(studentDocs).map(([studentEmail, docsMap]) => (
-        <div key={studentEmail} className="border border-slate-200 rounded-xl p-4 space-y-2">
-          <div className="font-semibold text-slate-900">Student: {studentEmail}</div>
-          {STUDENT_DOC_SLOTS.map((slot) => {
-            const item = docsMap?.[slot.id];
-            return (
-              <div
-                key={slot.id}
-                className="flex flex-wrap items-center justify-between gap-2 text-sm py-1.5 border-t border-slate-100"
-              >
-                <div>
-                  <span className="font-medium text-slate-800">
-                    {slot.label} ({slot.required ? 'Mandatory' : 'Optional'}):
-                  </span>{' '}
-                  <span className="text-slate-600">
-                    {item ? item.fileName : 'Pending'}
-                  </span>
-                </div>
-                {item?.dataUrl && (
-                  <button
-                    type="button"
-                    onClick={() => handleDownloadDoc(item)}
-                    className="px-3 py-1 rounded-lg bg-slate-900 text-white text-xs font-semibold"
-                  >
-                    Download
-                  </button>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      ))}
-    </div>
-  )}
-</div>
                 <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
                   <div className="p-6 border-b border-slate-200">
                     <h2 className="font-bold text-lg text-slate-900">All Student Applications ({applications.length})</h2>
@@ -1145,6 +1095,7 @@ Support: info@theonshoreadmissions.com
                             <th className="py-3.5 px-4">Student</th>
                             <th className="py-3.5 px-4">Target Institution</th>
                             <th className="py-3.5 px-4">Update Status</th>
+                            <th className="py-3.5 px-4">Docs</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 text-sm">
@@ -1170,6 +1121,7 @@ Support: info@theonshoreadmissions.com
                                   ))}
                                 </select>
                               </td>
+                              <td className="py-4 px-4"><button type="button" onClick={() => setOpenDocStudentEmail(openDocStudentEmail === app.student_email ? null : app.student_email)} className="px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold text-xs">Docs</button></td>
                             </tr>
                           ))}
                         </tbody>
@@ -1177,6 +1129,35 @@ Support: info@theonshoreadmissions.com
                     </div>
                   )}
                 </div>
+                {openDocStudentEmail && (
+  <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4">
+    <div className="flex items-center justify-between gap-2">
+      <h3 className="font-bold text-base text-slate-900">Student Documents: {openDocStudentEmail}</h3>
+      <button type="button" onClick={() => setOpenDocStudentEmail(null)} className="px-3 py-1 rounded-lg border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-50">Close</button>
+    </div>
+    {(!studentDocs[openDocStudentEmail] || Object.keys(studentDocs[openDocStudentEmail]).length === 0) ? (
+      <p className="text-sm text-slate-500">Is student ne abhi koi document upload nahi kiya hai.</p>
+    ) : (
+      <div className="space-y-2">
+        {STUDENT_DOC_SLOTS.map((slot) => {
+          const item = studentDocs[openDocStudentEmail]?.[slot.id];
+          return (
+            <div key={slot.id} className="flex flex-wrap items-center justify-between gap-2 text-sm py-2 px-3 rounded-xl border border-slate-100 bg-slate-50/50">
+              <div>
+                <span className="font-medium text-slate-800">{slot.label}</span>
+                <span className="text-xs text-slate-500 ml-1">({slot.required ? 'Mandatory' : 'Optional'})</span>
+                <span className="text-slate-600 ml-2">{item ? item.fileName : 'Pending'}</span>
+              </div>
+              {item?.dataUrl && (
+                <a href={item.dataUrl} download={item.fileName || `${slot.id}.pdf`} className="px-3 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold">Download</a>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    )}
+  </div>
+)}
 
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="bg-white rounded-2xl p-6 border border-slate-200">
