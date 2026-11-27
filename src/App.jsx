@@ -106,6 +106,63 @@ export default function App() {
 
   const [newBlog, setNewBlog] = useState({ title: '', category: 'Canada Onshore', excerpt: '', content: '' });
 const [currentUser, setCurrentUser] = useState(null);
+  const STUDENT_DOC_SLOTS = [
+  { id: 'tenth', label: '10th', required: true },
+  { id: 'twelfth', label: '12th', required: true },
+  { id: 'last_qualification', label: 'Last qualification if any', required: false },
+  { id: 'last_college_docs', label: 'Last college docs', required: true },
+  { id: 'visa_copy', label: 'Visa copy', required: true },
+];
+
+const [studentDocs, setStudentDocs] = useState(() => {
+  try {
+    return JSON.parse(localStorage.getItem('onshore_student_docs_v1') || '{}');
+  } catch (_) {
+    return {};
+  }
+});
+
+const handleDocUpload = (docId, label, file) => {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const ownerKey = currentUser?.email || 'guest_student';
+    const next = {
+      ...studentDocs,
+      [ownerKey]: {
+        ...(studentDocs[ownerKey] || {}),
+        [docId]: {
+          docId,
+          label,
+          fileName: file.name,
+          fileType: file.type || 'application/octet-stream',
+          dataUrl: reader.result,
+          updatedAt: new Date().toLocaleString(),
+        },
+      },
+    };
+    setStudentDocs(next);
+    try {
+      localStorage.setItem('onshore_student_docs_v1', JSON.stringify(next));
+    } catch (_) {}
+    showToast('Document Saved', `${label} (${file.name}) uploaded.`);
+  };
+  reader.readAsDataURL(file);
+};
+
+const handleDownloadDoc = (docItem) => {
+  if (!docItem?.dataUrl) return;
+  const link = document.createElement('a');
+  link.href = docItem.dataUrl;
+  link.download = docItem.fileName || `${docItem.docId}_document`;
+  link.click();
+};
+
+const whatsappInquiryUrl =
+  'https://wa.me/14313036515?text=' +
+  encodeURIComponent(
+    'Hi, I would like to inquire about admissions, college/university transfer, or study extension.'
+  );
   const [toast, setToast] = useState(null);
   const showToast = (title, message) => {
     setToast({ title, message });
@@ -880,7 +937,60 @@ Support: info@theonshoreadmissions.com
                       </button>
                     </form>
                   </div>
+<div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4 mt-6">
+  <div className="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h3 className="font-bold text-lg text-slate-900">Required Documents</h3>
+      <p className="text-sm text-slate-500">
+        Har document ka naam dekhein, upload karein, ya galat file hone par Change karein.
+      </p>
+    </div>
+    <a
+      href={whatsappInquiryUrl}
+      target="_blank"
+      rel="noreferrer"
+      className="px-4 py-2 rounded-xl bg-emerald-600 text-white text-sm font-semibold"
+    >
+      WhatsApp Inquiry (+14313036515)
+    </a>
+  </div>
 
+  <div className="space-y-3">
+    {STUDENT_DOC_SLOTS.map((slot) => {
+      const ownerKey = currentUser?.email || 'guest_student';
+      const uploaded = studentDocs[ownerKey]?.[slot.id];
+      return (
+        <div
+          key={slot.id}
+          className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-xl border border-slate-200"
+        >
+          <div>
+            <div className="font-semibold text-slate-900">
+              {slot.label}{' '}
+              <span className="text-xs font-medium text-slate-500">
+                ({slot.required ? 'Mandatory' : 'Optional'})
+              </span>
+            </div>
+            <div className="text-xs text-slate-600 mt-0.5">
+              {uploaded
+                ? `Uploaded: ${uploaded.fileName} (${uploaded.updatedAt})`
+                : 'Not uploaded yet'}
+            </div>
+          </div>
+
+          <label className="cursor-pointer px-3.5 py-2 rounded-lg bg-slate-900 text-white text-xs font-semibold">
+            {uploaded ? 'Change Document' : 'Upload Document'}
+            <input
+              type="file"
+              className="hidden"
+              onChange={(e) => handleDocUpload(slot.id, slot.label, e.target.files?.[0])}
+            />
+          </label>
+        </div>
+      );
+    })}
+  </div>
+</div>
                   <div className="lg:col-span-7 space-y-4">
                     <div className="flex items-center justify-between">
                       <h2 className="text-lg font-bold text-slate-900">My Applications ({studentApplications.length})</h2>
@@ -964,7 +1074,58 @@ Support: info@theonshoreadmissions.com
                   <button onClick={() => { setIsAdminUnlocked(false); try { localStorage.removeItem(ADMIN_SESSION_KEY); } catch (_) {} }} className="px-4 py-2 rounded-xl bg-red-600 text-sm font-semibold">Lock Admin</button>
                   </div>
                 </div>
+<div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4">
+  <div className="flex flex-wrap items-center justify-between gap-3">
+    <h2 className="font-bold text-lg text-slate-900">Student Uploaded Documents</h2>
+    <a
+      href={whatsappInquiryUrl}
+      target="_blank"
+      rel="noreferrer"
+      className="px-3.5 py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold"
+    >
+      WhatsApp: +14313036515
+    </a>
+  </div>
 
+  {Object.entries(studentDocs).length === 0 ? (
+    <p className="text-sm text-slate-500">Abhi kisi student ne documents upload nahi kiye hain.</p>
+  ) : (
+    <div className="space-y-4">
+      {Object.entries(studentDocs).map(([studentEmail, docsMap]) => (
+        <div key={studentEmail} className="border border-slate-200 rounded-xl p-4 space-y-2">
+          <div className="font-semibold text-slate-900">Student: {studentEmail}</div>
+          {STUDENT_DOC_SLOTS.map((slot) => {
+            const item = docsMap?.[slot.id];
+            return (
+              <div
+                key={slot.id}
+                className="flex flex-wrap items-center justify-between gap-2 text-sm py-1.5 border-t border-slate-100"
+              >
+                <div>
+                  <span className="font-medium text-slate-800">
+                    {slot.label} ({slot.required ? 'Mandatory' : 'Optional'}):
+                  </span>{' '}
+                  <span className="text-slate-600">
+                    {item ? item.fileName : 'Pending'}
+                  </span>
+                </div>
+                {item?.dataUrl && (
+                  <button
+                    type="button"
+                    onClick={() => handleDownloadDoc(item)}
+                    className="px-3 py-1 rounded-lg bg-slate-900 text-white text-xs font-semibold"
+                  >
+                    Download
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      ))}
+    </div>
+  )}
+</div>
                 <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
                   <div className="p-6 border-b border-slate-200">
                     <h2 className="font-bold text-lg text-slate-900">All Student Applications ({applications.length})</h2>
