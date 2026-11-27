@@ -272,7 +272,20 @@ const whatsappInquiryUrl =
     e.preventDefault();
     if (!currentUser) return;
     setSubmittingApp(true);
+const ownerKey = currentUser?.email || 'guest_student';
+const currentUserDocs = studentDocs[ownerKey] || {};
+const missingMandatory = STUDENT_DOC_SLOTS.filter(
+  (slot) => slot.required && !currentUserDocs[slot.id]?.fileName
+);
 
+if (missingMandatory.length > 0) {
+  setSubmittingApp(false);
+  showToast(
+    'Mandatory Documents Required',
+    `Please upload: ${missingMandatory.map((m) => m.label).join(', ')}`
+  );
+  return;
+}
     const newApp = {
       id: `OA-${Math.floor(100000 + Math.random() * 900000)}`,
       student_name: currentUser.name,
@@ -925,13 +938,56 @@ Support: info@theonshoreadmissions.com
                         </select>
                       </div>
 
-                      <div className="pt-2 border-t border-slate-100 space-y-2">
-                        <p className="text-xs font-bold text-slate-700">Upload Documents</p>
-                        <input type="file" required onChange={(e) => setAppForm({ ...appForm, passportFile: e.target.files[0]?.name || 'Passport.pdf' })} className="w-full text-xs" />
-                        <input type="file" required onChange={(e) => setAppForm({ ...appForm, transcriptFile: e.target.files[0]?.name || 'Transcripts.pdf' })} className="w-full text-xs" />
-                        <input type="file" required onChange={(e) => setAppForm({ ...appForm, visaFile: e.target.files[0]?.name || 'Study_Permit.pdf' })} className="w-full text-xs" />
-                      </div>
+                  <div className="pt-3 border-t border-slate-200 space-y-3">
+  <div className="flex flex-wrap items-center justify-between gap-2">
+    <div>
+      <p className="text-xs font-bold text-slate-800">Required Documents</p>
+      <p className="text-[11px] text-slate-500">
+        Galat file upload ho jaye toh Change Document se badal sakte hain.
+      </p>
+    </div>
+    <a
+      href={whatsappInquiryUrl}
+      target="_blank"
+      rel="noreferrer"
+      className="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-semibold"
+    >
+      WhatsApp (+14313036515)
+    </a>
+  </div>
 
+  {STUDENT_DOC_SLOTS.map((slot) => {
+    const ownerKey = currentUser?.email || 'guest_student';
+    const uploaded = studentDocs[ownerKey]?.[slot.id];
+    return (
+      <div
+        key={slot.id}
+        className="flex items-center justify-between gap-2 p-2.5 rounded-xl border border-slate-200 bg-slate-50/60"
+      >
+        <div className="min-w-0">
+          <div className="text-xs font-semibold text-slate-900">
+            {slot.label}{' '}
+            <span className="font-normal text-slate-500">
+              ({slot.required ? 'Mandatory' : 'Optional'})
+            </span>
+          </div>
+          <div className="text-[11px] text-slate-600 truncate">
+            {uploaded ? `Uploaded: ${uploaded.fileName}` : 'Not uploaded yet'}
+          </div>
+        </div>
+
+        <label className="shrink-0 cursor-pointer px-2.5 py-1.5 rounded-lg bg-slate-900 text-white text-[11px] font-semibold">
+          {uploaded ? 'Change Document' : 'Upload'}
+          <input
+            type="file"
+            className="hidden"
+            onChange={(e) => handleDocUpload(slot.id, slot.label, e.target.files?.[0])}
+          />
+        </label>
+      </div>
+    );
+  })}
+</div>
                       <button type="submit" disabled={submittingApp} className="w-full py-3 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-semibold text-sm">
                         {submittingApp ? 'Submitting...' : 'Submit Application'}
                       </button>
