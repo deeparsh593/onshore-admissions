@@ -319,7 +319,7 @@ if (missingMandatory.length > 0) {
       await fetchApplications();
       showToast('Application Submitted!', `Reference ID ${newApp.id} saved to database.`);
     }
-    catch (err)
+    catch (err) {
       let existingBackup = [];
       try {
         existingBackup = JSON.parse(localStorage.getItem(BACKUP_APPS_KEY) || '[]');
