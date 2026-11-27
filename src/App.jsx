@@ -942,9 +942,9 @@ Support: info@theonshoreadmissions.com
   <div className="flex flex-wrap items-center justify-between gap-2">
     <div>
       <p className="text-xs font-bold text-slate-800">Required Documents</p>
-      <p className="text-[11px] text-slate-500">
-        Galat file upload ho jaye toh Change Document se badal sakte hain.
-      </p>
+   <p className="text-[11px] text-slate-500">
+  Upload required files or click Change Document to replace an incorrect file.
+</p>
     </div>
     <a
       href={whatsappInquiryUrl}
@@ -993,60 +993,8 @@ Support: info@theonshoreadmissions.com
                       </button>
                     </form>
                   </div>
-<div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4 mt-6">
-  <div className="flex flex-wrap items-center justify-between gap-3">
-    <div>
-      <h3 className="font-bold text-lg text-slate-900">Required Documents</h3>
-      <p className="text-sm text-slate-500">
-        Har document ka naam dekhein, upload karein, ya galat file hone par Change karein.
-      </p>
-    </div>
-    <a
-      href={whatsappInquiryUrl}
-      target="_blank"
-      rel="noreferrer"
-      className="px-4 py-2 rounded-xl bg-emerald-600 text-white text-sm font-semibold"
-    >
-      WhatsApp Inquiry (+14313036515)
-    </a>
-  </div>
+                  
 
-  <div className="space-y-3">
-    {STUDENT_DOC_SLOTS.map((slot) => {
-      const ownerKey = currentUser?.email || 'guest_student';
-      const uploaded = studentDocs[ownerKey]?.[slot.id];
-      return (
-        <div
-          key={slot.id}
-          className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-xl border border-slate-200"
-        >
-          <div>
-            <div className="font-semibold text-slate-900">
-              {slot.label}{' '}
-              <span className="text-xs font-medium text-slate-500">
-                ({slot.required ? 'Mandatory' : 'Optional'})
-              </span>
-            </div>
-            <div className="text-xs text-slate-600 mt-0.5">
-              {uploaded
-                ? `Uploaded: ${uploaded.fileName} (${uploaded.updatedAt})`
-                : 'Not uploaded yet'}
-            </div>
-          </div>
-
-          <label className="cursor-pointer px-3.5 py-2 rounded-lg bg-slate-900 text-white text-xs font-semibold">
-            {uploaded ? 'Change Document' : 'Upload Document'}
-            <input
-              type="file"
-              className="hidden"
-              onChange={(e) => handleDocUpload(slot.id, slot.label, e.target.files?.[0])}
-            />
-          </label>
-        </div>
-      );
-    })}
-  </div>
-</div>
                   <div className="lg:col-span-7 space-y-4">
                     <div className="flex items-center justify-between">
                       <h2 className="text-lg font-bold text-slate-900">My Applications ({studentApplications.length})</h2>
