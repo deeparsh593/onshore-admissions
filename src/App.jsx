@@ -205,7 +205,7 @@ const whatsappInquiryUrl =
         .select('*')
         .order('submitted_date', { ascending: false });
 
-      if (!error && data) {
+      if (!error && Array.isArray(data)) {
         const dbIds = new Set(data.map((d) => d.id));
         const merged = [...backupApps.filter((b) => !dbIds.has(b.id)), ...data];
         setApplications(merged);
@@ -318,7 +318,7 @@ if (missingMandatory.length > 0) {
       if (error) throw error;
       await fetchApplications();
       showToast('Application Submitted!', `Reference ID ${newApp.id} saved to database.`);
-    } catch (_) {
+    catch (err)
       let existingBackup = [];
       try {
         existingBackup = JSON.parse(localStorage.getItem(BACKUP_APPS_KEY) || '[]');
@@ -329,6 +329,7 @@ if (missingMandatory.length > 0) {
       } catch (_) {}
       setApplications((prev) => [backupApp, ...prev]);
       showToast('Application Submitted!', `Reference ID ${newApp.id} saved successfully.`);
+    showToast('DB Sync Note', err?.message || 'Saved locally (check Supabase table/RLS).');
     }
 
     setAppForm({ ...appForm, currentInstitution: '', passportFile: '', transcriptFile: '', visaFile: '' });
