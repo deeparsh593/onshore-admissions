@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { UNIVERSITIES_DATA } from './universitiesData';
 
-const SUPABASE_URL = "https://glvhhxozmcgqnbwqolaw.supabase.co";
+const SUPABASE_URL = "https://onshore-admissions.vercel.app/supabase";
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdscnZoenh4em1jZ3FuYndxbGF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU1ODk5NjMsImV4cCI6MjExMTE2NTk2M30.Ilr1LRqLh7embIeeSc9Ag9vj014KaVp8eZqzX4WubGs';
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
