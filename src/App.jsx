@@ -9,7 +9,7 @@ import {
 import { UNIVERSITIES_DATA } from './universitiesData';
 
 const SUPABASE_URL = "https://onshore-admissions.vercel.app/supabase";
-const SUPABASE_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrdWFnb3ZreW5wYmp5aWVlYW94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU4NDkwMjMsImV4cCI6MjExMTQyNTAyM30.paEKUE1aYv44RoTK_su087Fzy1eIO9lRRBl8z0lxpjc
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrdWFnb3ZreW5wYmp5aWVlYW94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU4NDkwMjMsImV4cCI6MjExMTQyNTAyM30.paEKUE1aYv44RoTK_su087Fzy1eIO9lRRBl8z0lxpjc":
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const ADMIN_PASSCODE = 'Ashu1122@@';
